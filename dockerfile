@@ -1,14 +1,11 @@
-FROM node:20
+FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN yarn install
+# Install NestJS CLI globally
+RUN yarn global add @nestjs/cli
 
-COPY . .
+EXPOSE 3000
 
-RUN yarn run build
-
-EXPOSE 3001
-
-CMD ["node", "dist/main"]
+# The command will come from docker-compose.yml
+CMD ["yarn", "start:dev"]

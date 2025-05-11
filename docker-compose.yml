@@ -1,15 +1,43 @@
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: clinica-ifsp-app
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - '3001:3001'
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: >
+      sh -c "
+        if [ ! -f package.json ]; then
+          nest new . --package-manager yarn --skip-git --skip-install &&
+          yarn install
+        else
+          yarn install
+        fi && npx prisma generate &&
+        npx prisma migrate deploy &&
+        npx prisma db seed &&
+        yarn start:dev
+      "
+    depends_on:
+      - db
+      
   db:
     image: postgres
     container_name: clinica-ifsp-database
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: clinicadb
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres:/data/postgres
 
 volumes:
-  postgres_data:
+  postgres:
+    driver: local

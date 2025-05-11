@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import UsersRepository from '../infra/users.repository';
-import { hash } from 'bcrypt';
+import { hash } from 'bcryptjs';
 
 export type User = any;
 
