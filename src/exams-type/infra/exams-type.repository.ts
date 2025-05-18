@@ -6,6 +6,7 @@ import {
   PaginationResponse,
 } from 'src/core/utils/paginationResponse';
 import { ExamsType } from '@prisma/client';
+import { ListAllExamsTypeQueryDto } from '../domain/dto/list-all-exams-type-query.dto';
 
 @Injectable()
 export default class examsTypeRepository {
@@ -20,7 +21,9 @@ export default class examsTypeRepository {
     });
   }
 
-  async findAll(filters: any): Promise<PaginationResponse<ExamsType>> {
+  async findAll(
+    filters: ListAllExamsTypeQueryDto,
+  ): Promise<PaginationResponse<ExamsType>> {
     const { page, pageSize, skip, take } = mountPagination({
       page: filters.page,
       pageSize: filters.pageSize,
@@ -40,5 +43,21 @@ export default class examsTypeRepository {
       totalPages: Math.ceil(totalExamsType / pageSize) ?? 1,
       totalItems: totalExamsType ?? 0,
     };
+  }
+
+  async remove(id: string) {
+    return this.prisma.examsType.delete({
+      where: {
+        id,
+      },
+    });
+  }
+
+  async findOne(id: string): Promise<ExamsType | null> {
+    return this.prisma.examsType.findFirst({
+      where: {
+        id,
+      },
+    });
   }
 }

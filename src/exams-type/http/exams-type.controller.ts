@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ExamType } from '../domain/entities/exam-type.entity';
 import { CreateExamTypeDto } from '../domain/dto/create-exam-type.dto';
@@ -23,11 +31,21 @@ export class ExamsTypeController {
     return await this.examTypeService.createExamType(examType);
   }
 
-  @Get('/')
+  @Delete(':id')
+  async remove(@Param('id') examTypeId: string) {
+    return await this.examTypeService.remove(examTypeId);
+  }
+
+  @Get('')
   @ApiPaginatedResponse(ExamType)
   async listAll(
     @Query() filters: ListAllExamsTypeQueryDto,
   ): Promise<PaginationResponse<ExamType>> {
     return await this.examTypeService.findAll(filters);
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<ExamsType | null> {
+    return await this.examTypeService.findOne(id)
   }
 }

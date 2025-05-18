@@ -15,4 +15,12 @@ export class ExamsTypeService {
   async findAll(filters: any): Promise<PaginationResponse<any>> {
     return await this.examsTypeRepository.findAll(filters);
   }
+
+  async remove(id: string) {
+    return await this.examsTypeRepository.remove(id);
+  }
+
+  async findOne(id: string): Promise<ExamsType | null> {
+    return await this.examsTypeRepository.findOne(id);
+  }
 }
