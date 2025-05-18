@@ -8,8 +8,8 @@ async function bootstrap() {
   app.enableCors();
 
   const config = new DocumentBuilder()
-    .setTitle('Clinical API')
-    .setDescription('The clinical API description')
+    .setTitle('Clinic Check API')
+    .setDescription('')
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);

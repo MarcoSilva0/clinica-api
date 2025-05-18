@@ -5,7 +5,7 @@ import { CreateUserDto } from '../domain/dto/create-user.dto';
 import { User } from '@prisma/client';
 import { UserEntity } from '../domain/entities/user.entity';
 
-@ApiTags('Users')
+@ApiTags('Usuário')
 @Controller('users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
