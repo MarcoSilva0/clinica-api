@@ -8,14 +8,12 @@ async function bootstrap() {
   app.enableCors();
 
   const config = new DocumentBuilder()
-    .setTitle('Clinical API')
-    .setDescription('The clinical API description')
+    .setTitle('Clinic Check API')
+    .setDescription('')
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document, {
-    jsonDocumentUrl: 'swagger/json',
-  });
+  SwaggerModule.setup('api', app, document, {});
 
   await app.listen(process.env.PORT ?? 3000);
 }
