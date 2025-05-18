@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CreateExamTypeDto } from '../domain/dto/create-exam-type';
+import { CreateExamTypeDto } from '../domain/dto/create-exam-type.dto';
 import { ExamsType } from '@prisma/client';
 import examsTypeRepository from '../infra/exams-type.repository';
+import { PaginationResponse } from 'src/core/utils/paginationResponse';
 
 @Injectable()
 export class ExamsTypeService {
@@ -9,5 +10,9 @@ export class ExamsTypeService {
 
   async createExamType(examType: CreateExamTypeDto): Promise<ExamsType> {
     return this.examsTypeRepository.createExamType(examType);
+  }
+
+  async findAll(filters: any): Promise<PaginationResponse<any>> {
+    return await this.examsTypeRepository.findAll(filters);
   }
 }
