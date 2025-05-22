@@ -44,4 +44,15 @@ export class UserEntity {
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
   }
+
+  static toHttpResponse(user: any): UserEntity {
+    return new UserEntity(
+      user.id,
+      user.name,
+      user.email,
+      user.password,
+      user.createdAt,
+      user.updatedAt,
+    );
+  }
 }
