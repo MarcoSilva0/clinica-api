@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from '../service/users.service';
 import { CreateUserDto } from '../domain/dto/create-user.dto';
@@ -19,4 +19,5 @@ export class UsersController {
   async create(@Body() createUser: CreateUserDto): Promise<User> {
     return await this.usersService.createUser(createUser);
   }
+
 }

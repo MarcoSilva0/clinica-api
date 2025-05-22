@@ -23,4 +23,18 @@ export class ExamsTypeService {
   async findOne(id: string): Promise<ExamsType | null> {
     return await this.examsTypeRepository.findOne(id);
   }
+
+  async update(
+    id: string,
+    examType: CreateExamTypeDto,
+  ): Promise<ExamsType | null> {
+    return await this.examsTypeRepository.update(id, examType);
+  }
+
+  async changeActiveStatus(
+    id: string,
+    status: { status: boolean },
+  ): Promise<ExamsType | null> {
+    return await this.examsTypeRepository.changeActiveStatus(id, status);
+  }
 }

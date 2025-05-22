@@ -60,4 +60,26 @@ export default class examsTypeRepository {
       },
     });
   }
+
+  async update(id: string, examType: CreateExamTypeDto) {
+    return this.prisma.examsType.update({
+      where: {
+        id,
+      },
+      data: {
+        ...examType,
+      },
+    });
+  }
+
+  async changeActiveStatus(id: string, data: { status: boolean }) {
+    return this.prisma.examsType.update({
+      where: {
+        id,
+      },
+      data: {
+        active: data.status,
+      },
+    });
+  }
 }
