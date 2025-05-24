@@ -1,16 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import AppoimentsRepository from '../infra/appoiments.repository';
+import { CreateAppoimentDto } from '../domain/dto/create-appoiment.dto';
+import { ListAllAppoimentsQueryDto } from '../domain/dto/list-all-appoiments.dto';
 
 @Injectable()
 export class AppoimentsService {
   constructor(private appoimentsRepository: AppoimentsRepository) {}
 
-  async createAppoiment(appoiment: any): Promise<any> {
+  async createAppoiment(appoiment: CreateAppoimentDto): Promise<any> {
     return this.appoimentsRepository.createAppoiment(appoiment);
   }
 
-  async findAll(): Promise<any> {
-    return this.appoimentsRepository.findAll();
+  async findAll(filters: ListAllAppoimentsQueryDto): Promise<any> {
+    return this.appoimentsRepository.findAll(filters);
   }
 
   async findOne(id: string): Promise<any | null> {
