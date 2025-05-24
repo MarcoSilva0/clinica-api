@@ -47,7 +47,7 @@ export class ExamsTypeController {
     return await this.examTypeService.update(examTypeId, examType);
   }
 
-  @Patch(':id')
+  @Patch(':id/status')
   async partialUpdate(
     @Param('id') examTypeId: string,
     @Body() status: UpdateExamsTypeStatusDto,

@@ -46,7 +46,7 @@ export class UsersController {
     return await this.usersService.update(userId, examType);
   }
 
-  @Patch(':id')
+  @Patch(':id/status')
   async partialUpdate(
     @Param('id') userId: string,
     @Body() data: UpdateUserStatusDto,

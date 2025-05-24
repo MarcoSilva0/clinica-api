@@ -25,6 +25,15 @@ enum Action {
   DELETE
 }
 
+enum AppoimentsStatus {
+  SCHEDULED
+  CONFIRMED
+  WAITING_APPOIMENT
+  IN_APPOINTMENT
+  FINISIHED
+  CANCELED
+}
+
 model User {
   id       String  @id @default(uuid())
   name     String
@@ -34,9 +43,10 @@ model User {
   role     Role    @default(SECRETARIA)
   active   Boolean @default(true)
 
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
-  tutorials UserTutorials[]
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  tutorials  UserTutorials[]
+  Appoiments Appoiments[]
 }
 
 model UserTutorials {
@@ -65,10 +75,30 @@ model ExamsType {
   id                     String  @id @default(uuid())
   name                   String
   description            String?
-  defautlDuration       String
+  defautlDuration        String
   preparationInstruction String
   active                 Boolean
 
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  Appoiments Appoiments[]
+}
+
+model Appoiments {
+  id                 String           @id @default(uuid())
+  patient_cpf        String
+  patient_name       String
+  patient_phone      String
+  patient_email      String
+  patient_birth_date String
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId             String
+  examsType          ExamsType        @relation(fields: [examsTypeId], references: [id], onDelete: Cascade)
+  examsTypeId        String
+  date               DateTime
+  status             AppoimentsStatus @default(SCHEDULED)
+  details            String
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
