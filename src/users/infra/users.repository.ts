@@ -1,14 +1,21 @@
-import { Injectable } from '@nestjs/common';
-import { mountPagination, PaginationResponse } from 'src/core/utils/paginationResponse';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  mountPagination,
+  PaginationResponse,
+} from 'src/core/utils/paginationResponse';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ListAllUsersQueryDto } from '../domain/dto/list-all-users-query.dto';
 import { User } from '@prisma/client';
 import { UpdateUserStatusDto } from '../domain/dto/update-user-status.dto';
 import { UserEntity } from '../domain/entities/user.entity';
+import { UploadService } from 'src/upload/service/upload.service';
 
 @Injectable()
 export default class UsersRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly uploadService: UploadService,
+  ) {}
 
   async findUserByEmail(email: string) {
     return this.prisma.user.findUnique({
@@ -26,7 +33,9 @@ export default class UsersRepository {
     });
   }
 
-  async findAll(filters: ListAllUsersQueryDto): Promise<PaginationResponse<User>> {
+  async findAll(
+    filters: ListAllUsersQueryDto,
+  ): Promise<PaginationResponse<User>> {
     const { page, pageSize, skip, take } = mountPagination({
       page: filters.page,
       pageSize: filters.pageSize,

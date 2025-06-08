@@ -45,30 +45,7 @@ model User {
 
   createdAt  DateTime        @default(now())
   updatedAt  DateTime        @updatedAt
-  tutorials  UserTutorials[]
   Appoiments Appoiments[]
-}
-
-model UserTutorials {
-  id          String   @id @default(uuid())
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      String
-  tutorialKey String
-  completedAt DateTime
-
-  @@unique([userId, tutorialKey])
-}
-
-model AuditLog {
-  id       String  @id @default(uuid())
-  action   Action
-  entity   String
-  entityId String
-  userId   String?
-  before   Json?
-  after    Json?
-
-  createAt DateTime @default(now())
 }
 
 model ExamsType {
