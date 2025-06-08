@@ -2,15 +2,20 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
+  MaxFileSizeValidator,
   NotFoundException,
   Param,
+  ParseFilePipe,
   Patch,
   Post,
   Put,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from '../service/users.service';
 import { CreateUserDto } from '../domain/dto/create-user.dto';
 import { User } from '@prisma/client';
@@ -20,6 +25,10 @@ import { ListAllUsersQueryDto } from '../domain/dto/list-all-users-query.dto';
 import { PaginationResponse } from 'src/core/utils/paginationResponse';
 import { UpdateUserStatusDto } from '../domain/dto/update-user-status.dto';
 import { UpdateUserDto } from '../domain/dto/update-user.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { extname } from 'path';
+import * as fs from 'fs/promises';
+import { v4 as uuidv4 } from 'uuid';
 
 @ApiTags('Usuário')
 @Controller('users')
@@ -27,13 +36,23 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Post()
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'))
   @ApiResponse({
     status: 201,
     description: 'User created successfully',
     type: UserEntity,
   })
-  async create(@Body() createUser: CreateUserDto): Promise<User> {
-    return await this.usersService.createUser(createUser);
+  async create(
+    @Body() createUser: CreateUserDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new MaxFileSizeValidator({ maxSize: 2000000 })],
+      }),
+    )
+    file: Express.Multer.File,
+  ): Promise<any> {
+    return await this.usersService.createUser(createUser, file);
   }
 
   @Delete(':id')

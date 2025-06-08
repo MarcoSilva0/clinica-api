@@ -5,9 +5,19 @@ import UsersRepository from './infra/users.repository';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from 'src/auth/infra/guard/auth/auth.guard';
+import { MulterModule } from '@nestjs/platform-express';
+import multerConfig from 'src/upload/multer-config';
+import { UploadService } from 'src/upload/service/upload.service';
+import { UploadModule } from 'src/upload/upload.module';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [
+    PrismaModule,
+    MulterModule.register(
+      multerConfig({ customPath: 'user', customFolder: 'user' }),
+    ),
+    UploadModule,
+  ],
   controllers: [UsersController],
   providers: [
     {
