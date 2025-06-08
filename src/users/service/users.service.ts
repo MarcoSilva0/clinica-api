@@ -18,7 +18,7 @@ export class UsersService {
     return this.usersRepository.findUserByEmail(email);
   }
 
-  async createUser(user: User, photo: Express.Multer.File): Promise<User> {
+  async createUser(user: User, photo?: Express.Multer.File): Promise<User> {
     const saltRounds = 10;
 
     const passwordCrypt = await hash(user.password, saltRounds);
@@ -26,7 +26,7 @@ export class UsersService {
     return this.usersRepository.createUser({
       ...user,
       active: Boolean(user.active),
-      photo: photo.path,
+      photo: photo?.path,
       password: passwordCrypt,
     });
   }
