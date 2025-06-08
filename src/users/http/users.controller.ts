@@ -26,9 +26,6 @@ import { PaginationResponse } from 'src/core/utils/paginationResponse';
 import { UpdateUserStatusDto } from '../domain/dto/update-user-status.dto';
 import { UpdateUserDto } from '../domain/dto/update-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { extname } from 'path';
-import * as fs from 'fs/promises';
-import { v4 as uuidv4 } from 'uuid';
 
 @ApiTags('Usuário')
 @Controller('users')
@@ -48,9 +45,10 @@ export class UsersController {
     @UploadedFile(
       new ParseFilePipe({
         validators: [new MaxFileSizeValidator({ maxSize: 2000000 })],
+        fileIsRequired: false,
       }),
     )
-    file: Express.Multer.File,
+    file?: Express.Multer.File,
   ): Promise<any> {
     return await this.usersService.createUser(createUser, file);
   }
