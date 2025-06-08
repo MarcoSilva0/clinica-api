@@ -19,4 +19,7 @@ export class CreateUserDto {
 
   @ApiProperty()
   active: boolean;
+
+  @ApiProperty({ type: 'string', format: 'binary' })
+  file: Express.Multer.File;
 }
