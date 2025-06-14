@@ -4,6 +4,7 @@ import { hash } from 'bcryptjs';
 import { ListAllUsersQueryDto } from '../domain/dto/list-all-users-query.dto';
 import { UpdateUserStatusDto } from '../domain/dto/update-user-status.dto';
 import { UploadService } from 'src/upload/service/upload.service';
+import { MailerService } from 'src/mailer/services/mailer.service';
 
 export type User = any;
 
@@ -11,7 +12,7 @@ export type User = any;
 export class UsersService {
   constructor(
     private readonly usersRepository: UsersRepository,
-    private readonly uploadService: UploadService,
+    private readonly mailerService: MailerService,
   ) {}
 
   async findOneByEmail(email: string): Promise<User | undefined> {
@@ -23,12 +24,20 @@ export class UsersService {
 
     const passwordCrypt = await hash(user.password, saltRounds);
 
-    return this.usersRepository.createUser({
+    const userCreated = await this.usersRepository.createUser({
       ...user,
       active: Boolean(user.active),
       photo: photo?.path,
       password: passwordCrypt,
     });
+
+    const emailSender = await this.mailerService.sendEmail(
+      'marcoantonio02016@outlook.com',
+      'Email Criado',
+      `<html>Seu e-mail foi criado ${userCreated.email}</html>`,
+    );
+
+    return { userCreated, emailSended: emailSender.success };
   }
 
   async findAll(filters: ListAllUsersQueryDto): Promise<any> {

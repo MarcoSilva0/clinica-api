@@ -9,6 +9,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import multerConfig from 'src/upload/multer-config';
 import { UploadService } from 'src/upload/service/upload.service';
 import { UploadModule } from 'src/upload/upload.module';
+import { MailerModule } from 'src/mailer/mailer.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { UploadModule } from 'src/upload/upload.module';
       multerConfig({ customPath: 'user', customFolder: 'user' }),
     ),
     UploadModule,
+    MailerModule
   ],
   controllers: [UsersController],
   providers: [
