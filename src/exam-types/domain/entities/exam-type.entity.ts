@@ -11,7 +11,7 @@ export class ExamType {
   description?: string;
 
   @ApiProperty()
-  defautlDuration: string;
+  defaultDuration: string;
 
   @ApiProperty()
   preparationInstruction: string;

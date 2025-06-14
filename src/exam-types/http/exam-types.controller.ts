@@ -12,7 +12,7 @@ import {
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ExamType } from '../domain/entities/exam-type.entity';
 import { CreateExamTypeDto } from '../domain/dto/create-exam-type.dto';
-import { ExamsType } from '@prisma/client';
+import { ExamTypes } from '@prisma/client';
 import { ExamsTypeService } from '../service/exams-type.service';
 import { PaginationResponse } from 'src/core/utils/paginationResponse';
 import { ListAllExamsTypeQueryDto } from '../domain/dto/list-all-exams-type-query.dto';
@@ -20,8 +20,8 @@ import { ApiPaginatedResponse } from 'src/core/decorators/paginated-response.dec
 import { UpdateExamsTypeStatusDto } from '../domain/dto/update-exams-type-status.dto';
 
 @ApiTags('Tipos de Exames')
-@Controller('exams-type')
-export class ExamsTypeController {
+@Controller('exams-types')
+export class ExamTypesController {
   constructor(private examTypeService: ExamsTypeService) {}
 
   @Post()
@@ -30,7 +30,7 @@ export class ExamsTypeController {
     description: 'Type of exam created successfully',
     type: ExamType,
   })
-  async create(@Body() examType: CreateExamTypeDto): Promise<ExamsType> {
+  async create(@Body() examType: CreateExamTypeDto): Promise<ExamTypes> {
     return await this.examTypeService.createExamType(examType);
   }
 
@@ -64,7 +64,7 @@ export class ExamsTypeController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<ExamsType | null> {
+  async findOne(@Param('id') id: string): Promise<ExamType | null> {
     return await this.examTypeService.findOne(id);
   }
 }

@@ -15,7 +15,7 @@ import { AppoimentsEntity } from '../domain/entities/appoiments.entity';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateAppoimentDto } from '../domain/dto/create-appoiment.dto';
 import { Appoiments } from '@prisma/client';
-import { ListAllExamsTypeQueryDto } from 'src/exams-type/domain/dto/list-all-exams-type-query.dto';
+import { ListAllExamsTypeQueryDto } from 'src/exam-types/domain/dto/list-all-exams-type-query.dto';
 import { ListAllAppoimentsQueryDto } from '../domain/dto/list-all-appoiments.dto';
 
 @ApiTags('Agendamentos')
