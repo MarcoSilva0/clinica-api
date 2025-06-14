@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateExamTypeDto } from '../domain/dto/create-exam-type.dto';
-import { ExamsType } from '@prisma/client';
+import { ExamTypes } from '@prisma/client';
 import examsTypeRepository from '../infra/exams-type.repository';
 import { PaginationResponse } from 'src/core/utils/paginationResponse';
 
@@ -8,7 +8,7 @@ import { PaginationResponse } from 'src/core/utils/paginationResponse';
 export class ExamsTypeService {
   constructor(private examsTypeRepository: examsTypeRepository) {}
 
-  async createExamType(examType: CreateExamTypeDto): Promise<ExamsType> {
+  async createExamType(examType: CreateExamTypeDto): Promise<ExamTypes> {
     return this.examsTypeRepository.createExamType(examType);
   }
 
@@ -20,21 +20,21 @@ export class ExamsTypeService {
     return await this.examsTypeRepository.remove(id);
   }
 
-  async findOne(id: string): Promise<ExamsType | null> {
+  async findOne(id: string): Promise<ExamTypes | null> {
     return await this.examsTypeRepository.findOne(id);
   }
 
   async update(
     id: string,
     examType: CreateExamTypeDto,
-  ): Promise<ExamsType | null> {
+  ): Promise<ExamTypes | null> {
     return await this.examsTypeRepository.update(id, examType);
   }
 
   async changeActiveStatus(
     id: string,
     status: { status: boolean },
-  ): Promise<ExamsType | null> {
+  ): Promise<ExamTypes | null> {
     return await this.examsTypeRepository.changeActiveStatus(id, status);
   }
 }

@@ -21,7 +21,7 @@ export default class AppoimentsRepository {
       pageSize: filters.pageSize,
     });
 
-    const totalUsers = await this.prisma.user.count();
+    const totalUsers = await this.prisma.users.count();
 
     const appoiments = await this.prisma.appoiments.findMany({
       skip,

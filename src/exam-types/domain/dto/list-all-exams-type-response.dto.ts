@@ -1,6 +1,5 @@
-import { ExamsType } from "@prisma/client";
+import { ExamTypes } from '@prisma/client';
 
 export class ListAllExamsTypeResponseDto {
-    data: ExamsType[]
-
+  data: ExamTypes[];
 }

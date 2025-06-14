@@ -8,7 +8,7 @@ export class ExamType {
   name: string;
 
   @ApiProperty()
-  description?: string;
+  description?: string | null;
 
   @ApiProperty()
   defaultDuration: string;
