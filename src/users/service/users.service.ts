@@ -1,9 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import UsersRepository from '../infra/users.repository';
 import { hash } from 'bcryptjs';
 import { ListAllUsersQueryDto } from '../domain/dto/list-all-users-query.dto';
 import { UpdateUserStatusDto } from '../domain/dto/update-user-status.dto';
-import { UploadService } from 'src/upload/service/upload.service';
 import { MailerService } from 'src/mailer/services/mailer.service';
 
 export type User = any;
@@ -40,6 +39,18 @@ export class UsersService {
     return { userCreated, emailSended: emailSender.success };
   }
 
+  async createAdminUser(user: User): Promise<User> {
+    const saltRounds = 10;
+    const passwordCrypt = await hash(user.password, saltRounds);
+    const userCreated = await this.usersRepository.createUser({
+      ...user,
+      active: true,
+      role: 'ADMIN',
+      password: passwordCrypt,
+    });
+    return userCreated;
+  }
+
   async findAll(filters: ListAllUsersQueryDto): Promise<any> {
     return await this.usersRepository.findAll(filters);
   }
@@ -61,5 +72,9 @@ export class UsersService {
     data: UpdateUserStatusDto,
   ): Promise<User | null> {
     return await this.usersRepository.changeActiveStatus(id, data);
+  }
+
+  async findFirstAdmin(): Promise<User | null> {
+    return await this.usersRepository.findFirstAdmin();
   }
 }

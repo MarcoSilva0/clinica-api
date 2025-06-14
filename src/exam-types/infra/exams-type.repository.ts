@@ -5,7 +5,7 @@ import {
   mountPagination,
   PaginationResponse,
 } from 'src/core/utils/paginationResponse';
-import { ExamsType } from '@prisma/client';
+import { ExamTypes } from '@prisma/client';
 import { ListAllExamsTypeQueryDto } from '../domain/dto/list-all-exams-type-query.dto';
 
 @Injectable()
@@ -13,7 +13,7 @@ export default class examsTypeRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async createExamType(examType: CreateExamTypeDto) {
-    return this.prisma.examsType.create({
+    return this.prisma.examTypes.create({
       data: {
         ...examType,
         active: true,
@@ -23,15 +23,15 @@ export default class examsTypeRepository {
 
   async findAll(
     filters: ListAllExamsTypeQueryDto,
-  ): Promise<PaginationResponse<ExamsType>> {
+  ): Promise<PaginationResponse<ExamTypes>> {
     const { page, pageSize, skip, take } = mountPagination({
       page: filters.page,
       pageSize: filters.pageSize,
     });
 
-    const totalExamsType = await this.prisma.examsType.count();
+    const totalExamsType = await this.prisma.examTypes.count();
 
-    const examsTypes = await this.prisma.examsType.findMany({
+    const examsTypes = await this.prisma.examTypes.findMany({
       skip,
       take,
       orderBy: { createdAt: 'desc' },
@@ -46,15 +46,15 @@ export default class examsTypeRepository {
   }
 
   async remove(id: string) {
-    return this.prisma.examsType.delete({
+    return this.prisma.examTypes.delete({
       where: {
         id,
       },
     });
   }
 
-  async findOne(id: string): Promise<ExamsType | null> {
-    return this.prisma.examsType.findFirst({
+  async findOne(id: string): Promise<ExamTypes | null> {
+    return this.prisma.examTypes.findFirst({
       where: {
         id,
       },
@@ -62,7 +62,7 @@ export default class examsTypeRepository {
   }
 
   async update(id: string, examType: CreateExamTypeDto) {
-    return this.prisma.examsType.update({
+    return this.prisma.examTypes.update({
       where: {
         id,
       },
@@ -73,7 +73,7 @@ export default class examsTypeRepository {
   }
 
   async changeActiveStatus(id: string, data: { status: boolean }) {
-    return this.prisma.examsType.update({
+    return this.prisma.examTypes.update({
       where: {
         id,
       },

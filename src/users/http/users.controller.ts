@@ -18,7 +18,6 @@ import {
 import { ApiConsumes, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from '../service/users.service';
 import { CreateUserDto } from '../domain/dto/create-user.dto';
-import { User } from '@prisma/client';
 import { UserEntity } from '../domain/entities/user.entity';
 import { ApiPaginatedResponse } from 'src/core/decorators/paginated-response.decorator';
 import { ListAllUsersQueryDto } from '../domain/dto/list-all-users-query.dto';

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ExamsTypeController } from './http/exams-type.controller';
+import { ExamTypesController } from './http/exam-types.controller';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from 'src/auth/infra/guard/auth/auth.guard';
 import { PrismaModule } from 'src/prisma/prisma.module';
@@ -16,6 +16,6 @@ import examsTypeRepository from './infra/exams-type.repository';
     ExamsTypeService,
     examsTypeRepository,
   ],
-  controllers: [ExamsTypeController],
+  controllers: [ExamTypesController],
 })
-export class ExamsTypeModule {}
+export class ExamTypesModule {}

@@ -5,7 +5,7 @@ import {
 } from 'src/core/utils/paginationResponse';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ListAllUsersQueryDto } from '../domain/dto/list-all-users-query.dto';
-import { User } from '@prisma/client';
+import { Users } from '@prisma/client';
 import { UpdateUserStatusDto } from '../domain/dto/update-user-status.dto';
 import { UserEntity } from '../domain/entities/user.entity';
 import { UploadService } from 'src/upload/service/upload.service';
@@ -18,7 +18,7 @@ export default class UsersRepository {
   ) {}
 
   async findUserByEmail(email: string) {
-    return this.prisma.user.findUnique({
+    return this.prisma.users.findUnique({
       where: {
         email,
       },
@@ -26,7 +26,7 @@ export default class UsersRepository {
   }
 
   async createUser(user: any) {
-    return this.prisma.user.create({
+    return this.prisma.users.create({
       data: {
         ...user,
       },
@@ -35,35 +35,51 @@ export default class UsersRepository {
 
   async findAll(
     filters: ListAllUsersQueryDto,
-  ): Promise<PaginationResponse<User>> {
+  ): Promise<PaginationResponse<Users>> {
     const { page, pageSize, skip, take } = mountPagination({
       page: filters.page,
       pageSize: filters.pageSize,
     });
 
-    const totalUsers = await this.prisma.user.count();
+    const totalUsers = await this.prisma.users.count();
 
-    const users = await this.prisma.user.findMany({
-      skip,
-      take,
-      orderBy: { createdAt: 'desc' },
-      where: {
-        name: {
-          contains: filters.name,
-          mode: 'insensitive',
-        },
-        email: {
-          contains: filters.email,
-          mode: 'insensitive',
-        },
-        AND: [
+    const whereInput = {};
+
+    if (filters.name || filters.email) {
+      whereInput['OR'] = [
+        [
           {
-            active: {
-              equals: filters.active,
+            name: {
+              contains: filters.name,
+              mode: 'insensitive',
+            },
+          },
+          {
+            email: {
+              contains: filters.email,
+              mode: 'insensitive',
             },
           },
         ],
-      },
+      ];
+    }
+    console.log('filters', filters);
+
+    if (filters.active !== undefined && filters.active !== null) {
+      whereInput['AND'] = [
+        {
+          active: {
+            equals: typeof filters.active === 'boolean' ? filters.active : filters.active === 'true',
+          },
+        },
+      ];
+    }
+
+    const users = await this.prisma.users.findMany({
+      skip,
+      take,
+      orderBy: { createdAt: 'desc' },
+      where: whereInput,
     });
 
     return {
@@ -74,8 +90,8 @@ export default class UsersRepository {
     };
   }
 
-  async findOne(id: string): Promise<User | null> {
-    return this.prisma.user.findFirst({
+  async findOne(id: string): Promise<Users | null> {
+    return this.prisma.users.findFirst({
       where: {
         id,
       },
@@ -83,7 +99,7 @@ export default class UsersRepository {
   }
 
   async remove(id: string) {
-    return this.prisma.user.delete({
+    return this.prisma.users.delete({
       where: {
         id,
       },
@@ -91,7 +107,7 @@ export default class UsersRepository {
   }
 
   async update(id: string, user: UserEntity) {
-    return this.prisma.user.update({
+    return this.prisma.users.update({
       where: {
         id,
       },
@@ -102,12 +118,20 @@ export default class UsersRepository {
   }
 
   async changeActiveStatus(id: string, data: UpdateUserStatusDto) {
-    return this.prisma.user.update({
+    return this.prisma.users.update({
       where: {
         id,
       },
       data: {
         active: data.status,
+      },
+    });
+  }
+
+  async findFirstAdmin(): Promise<Users | null> {
+    return this.prisma.users.findFirst({
+      where: {
+        role: 'ADMIN',
       },
     });
   }

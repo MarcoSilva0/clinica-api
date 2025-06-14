@@ -8,10 +8,10 @@ export class ExamType {
   name: string;
 
   @ApiProperty()
-  description?: string;
+  description?: string | null;
 
   @ApiProperty()
-  defautlDuration: string;
+  defaultDuration: string;
 
   @ApiProperty()
   preparationInstruction: string;

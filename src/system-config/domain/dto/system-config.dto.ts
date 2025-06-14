@@ -1,15 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateExamTypeDto {
+export class SetupDto {
   @ApiProperty()
   name: string;
 
   @ApiProperty()
-  description?: string;
+  email: string;
 
   @ApiProperty()
-  defautlDuration: string;
+  password: string;
 
   @ApiProperty()
-  preparationInstruction: string;
+  maxWaitTimeMin: number;
 }
