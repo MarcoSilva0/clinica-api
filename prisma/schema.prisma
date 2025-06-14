@@ -19,12 +19,6 @@ enum Role {
   TOTEM
 }
 
-enum Action {
-  CREATE
-  UPDATE
-  DELETE
-}
-
 enum AppoimentsStatus {
   SCHEDULED
   CONFIRMED
@@ -34,7 +28,7 @@ enum AppoimentsStatus {
   CANCELED
 }
 
-model User {
+model Users {
   id       String  @id @default(uuid())
   name     String
   email    String  @unique
@@ -43,16 +37,16 @@ model User {
   role     Role    @default(SECRETARIA)
   active   Boolean @default(true)
 
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
   Appoiments Appoiments[]
 }
 
-model ExamsType {
+model ExamTypes {
   id                     String  @id @default(uuid())
   name                   String
   description            String?
-  defautlDuration        String
+  defaultDuration        String
   preparationInstruction String
   active                 Boolean
 
@@ -68,14 +62,23 @@ model Appoiments {
   patient_phone      String
   patient_email      String
   patient_birth_date String
-  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user               Users            @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId             String
-  examsType          ExamsType        @relation(fields: [examsTypeId], references: [id], onDelete: Cascade)
+  examsType          ExamTypes        @relation(fields: [examsTypeId], references: [id], onDelete: Cascade)
   examsTypeId        String
   date               DateTime
   status             AppoimentsStatus @default(SCHEDULED)
   details            String
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model SystemConfig {
+  id             Int     @id @default(1)
+  initialized    Boolean @default(false)
+  maxWaitTimeMin Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt 
 }

@@ -10,7 +10,7 @@ async function main() {
   const saltRounds = 10;
   const passwordCrypt = await hash('admin', saltRounds);
 
-  const user_default = await prisma.user.upsert({
+  const user_default = await prisma.users.upsert({
     where: {
       email: 'admin@admin.com',
     },
