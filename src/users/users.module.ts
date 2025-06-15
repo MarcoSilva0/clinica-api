@@ -7,9 +7,9 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from 'src/auth/infra/guard/auth/auth.guard';
 import { MulterModule } from '@nestjs/platform-express';
 import multerConfig from 'src/upload/multer-config';
-import { UploadService } from 'src/upload/service/upload.service';
 import { UploadModule } from 'src/upload/upload.module';
 import { MailerModule } from 'src/mailer/mailer.module';
+import { RolesGuard } from 'src/auth/infra/guard/role/role.guard';
 
 @Module({
   imports: [
@@ -18,13 +18,17 @@ import { MailerModule } from 'src/mailer/mailer.module';
       multerConfig({ customPath: 'user', customFolder: 'user' }),
     ),
     UploadModule,
-    MailerModule
+    MailerModule,
   ],
   controllers: [UsersController],
   providers: [
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
     },
     UsersService,
     UsersRepository,

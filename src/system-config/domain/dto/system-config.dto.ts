@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class SetupDto {
+export class SystemConfigDto {
   @ApiProperty()
   name: string;
 

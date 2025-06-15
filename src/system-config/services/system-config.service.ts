@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import SystemConfigRepository from '../infra/system-config.repository';
-import { SetupDto } from '../domain/dto/system-config.dto';
+import { SystemConfigDto } from '../domain/dto/system-config.dto';
 import { UsersService } from 'src/users/service/users.service';
 import { MailerService } from 'src/mailer/services/mailer.service';
+import { UpdateSystemConfigDto } from '../domain/dto/update-system-config.dto';
 
 @Injectable()
 export class SystemConfigService {
@@ -17,7 +18,7 @@ export class SystemConfigService {
     return { initialized: config?.initialized ?? false };
   }
 
-  async setupSystem(data: SetupDto) {
+  async setupSystem(data: SystemConfigDto) {
     const config = await this.systemConfigRepository.findSystemConfig();
     const userExist = await this.userService.findFirstAdmin();
 
@@ -42,5 +43,18 @@ export class SystemConfigService {
     );
 
     return { message: 'System initialized successfully' };
+  }
+
+  async updateSystem(data: UpdateSystemConfigDto) {
+    const config = await this.systemConfigRepository.findSystemConfig();
+    if (!config?.initialized) {
+      throw new Error('System not initialized');
+    }
+
+    await this.systemConfigRepository.updateSystemConfig({
+      maxWaitTimeMin: data.maxWaitTimeMin,
+    });
+
+    return { message: 'System configuration updated successfully' };
   }
 }
