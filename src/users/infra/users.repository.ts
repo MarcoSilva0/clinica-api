@@ -63,7 +63,6 @@ export default class UsersRepository {
         ],
       ];
     }
-    console.log('filters', filters);
 
     if (filters.active !== undefined && filters.active !== null) {
       whereInput['AND'] = [
