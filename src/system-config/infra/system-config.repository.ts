@@ -28,4 +28,15 @@ export default class SystemConfigRepository {
       },
     });
   }
+
+  async updateSystemConfig(data: {
+    maxWaitTimeMin: number;
+  }): Promise<SystemConfig> {
+    return this.prisma.systemConfig.update({
+      where: { id: 1 },
+      data: {
+        maxWaitTimeMin: data.maxWaitTimeMin,
+      },
+    });
+  }
 }

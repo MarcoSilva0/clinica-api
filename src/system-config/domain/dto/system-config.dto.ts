@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 
-export class SetupDto {
+export class SystemConfigDto {
   @ApiProperty()
   @IsNotEmpty()
   name: string;
