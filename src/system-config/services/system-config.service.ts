@@ -17,6 +17,11 @@ export class SystemConfigService {
     return { initialized: config?.initialized ?? false };
   }
 
+  async getMaxWaitTimeMin() {
+    const config = await this.systemConfigRepository.findSystemConfig();
+    return { maxWaitTimeMin: config?.maxWaitTimeMin ?? null };
+  }
+
   async setupSystem(data: SetupDto) {
     const config = await this.systemConfigRepository.findSystemConfig();
     const userExist = await this.userService.findFirstAdmin();

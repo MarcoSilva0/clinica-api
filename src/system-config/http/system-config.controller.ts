@@ -21,4 +21,10 @@ export class SystemConfigController {
     console.log('getStatus endpoint accessed');
     return this.configService.getStatus();
   }
+
+  @Public()
+  @Get('/max-wait-time')
+  async getMaxWaitTimeMin() {
+    return this.configService.getMaxWaitTimeMin();
+  }
 }
