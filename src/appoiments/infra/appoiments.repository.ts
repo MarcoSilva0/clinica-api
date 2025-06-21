@@ -21,11 +21,7 @@ export default class AppoimentsRepository {
       pageSize: filters.pageSize,
     });
 
-    const totalUsers = await this.prisma.users.count();
-
-    const appoiments = await this.prisma.appoiments.findMany({
-      skip,
-      take,
+    const totalAppoiments = await this.prisma.appoiments.count({
       where: {
         AND: [
           {
@@ -62,14 +58,60 @@ export default class AppoimentsRepository {
           },
         ],
       },
+    });
+
+    const appoiments = await this.prisma.appoiments.findMany({
+      skip,
+      take,
+      where: {
+        AND: [
+          {
+            date:
+              filters.startDate && filters.endDate
+                ? {
+                    gte: filters.startDate,
+                    lte: filters.endDate,
+                  }
+                : undefined,
+          },
+        ],
+        OR: filters.search
+          ? [
+              {
+                patient_name: {
+                  contains: filters.search,
+                  mode: 'insensitive',
+                },
+              },
+              {
+                patient_email: {
+                  contains: filters.search,
+                  mode: 'insensitive',
+                },
+              },
+              {
+                patient_phone: {
+                  contains: filters.search,
+                  mode: 'insensitive',
+                },
+              },
+              {
+                patient_cpf: {
+                  contains: filters.search,
+                  mode: 'insensitive',
+                },
+              },
+            ]
+          : undefined,
+      },
       orderBy: { createdAt: 'desc' },
     });
 
     return {
       data: appoiments,
-      totalPages: Math.ceil(totalUsers / pageSize) ?? 1,
+      totalPages: Math.ceil(totalAppoiments / pageSize) ?? 1,
       currentPage: page,
-      totalItems: totalUsers ?? 0,
+      totalItems: totalAppoiments ?? 0,
     };
   }
 
@@ -85,6 +127,7 @@ export default class AppoimentsRepository {
     return this.prisma.appoiments.create({
       data: {
         ...appoiment,
+        date: new Date(appoiment.date).toISOString(),
       },
     });
   }

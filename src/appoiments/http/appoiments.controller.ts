@@ -29,7 +29,9 @@ export class AppoimentsController {
     description: 'Agendamento criado com sucesso',
     type: AppoimentsEntity,
   })
-  async createAppoiment(appoiment: CreateAppoimentDto): Promise<Appoiments> {
+  async createAppoiment(
+    @Body() appoiment: CreateAppoimentDto,
+  ): Promise<Appoiments> {
     return this.appoimentsService.createAppoiment(appoiment);
   }
 

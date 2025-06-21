@@ -16,4 +16,7 @@ export class AuthenticationResponseDto {
 
   @ApiProperty()
   token: string;
+
+  @ApiProperty()
+  id: string;
 }
