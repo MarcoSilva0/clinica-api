@@ -13,6 +13,14 @@ import { AppoimentsEntity } from '../domain/entities/appoiments.entity';
 export default class AppoimentsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  async findByExamTypeId(examsTypeId: string) {
+    return this.prisma.appoiments.findMany({
+      where: {
+        examsTypeId,
+      },
+    });
+  }
+
   async findAll(
     filters: ListAllAppoimentsQueryDto,
   ): Promise<PaginationResponse<Appoiments>> {

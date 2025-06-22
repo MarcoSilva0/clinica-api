@@ -24,6 +24,9 @@ export class UserEntity {
   active: boolean;
 
   @ApiProperty()
+  birth_date: string;
+
+  @ApiProperty()
   createdAt: Date;
 
   @ApiProperty()

@@ -16,4 +16,7 @@ export class UpdateUserDto {
 
   @ApiProperty()
   active: boolean;
+
+  @ApiProperty()
+  birth_date: string;
 }

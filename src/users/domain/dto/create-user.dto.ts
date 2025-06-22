@@ -9,9 +9,6 @@ export class CreateUserDto {
   email: string;
 
   @ApiProperty()
-  password: string;
-
-  @ApiProperty()
   photo: string;
 
   @ApiProperty({ enumName: 'Role', enum: Role })
@@ -22,4 +19,7 @@ export class CreateUserDto {
 
   @ApiPropertyOptional({ type: 'string', format: 'binary' })
   file: Express.Multer.File;
+
+  @ApiProperty()
+  birth_date: string;
 }
