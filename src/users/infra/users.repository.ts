@@ -7,16 +7,11 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { ListAllUsersQueryDto } from '../domain/dto/list-all-users-query.dto';
 import { Users } from '@prisma/client';
 import { UpdateUserStatusDto } from '../domain/dto/update-user-status.dto';
-import { UserEntity } from '../domain/entities/user.entity';
-import { UploadService } from 'src/upload/service/upload.service';
 import { UpdateUserDto } from '../domain/dto/update-user.dto';
 
 @Injectable()
 export default class UsersRepository {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly uploadService: UploadService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async findUserByEmail(email: string) {
     return this.prisma.users.findUnique({
@@ -69,7 +64,10 @@ export default class UsersRepository {
       whereInput['AND'] = [
         {
           active: {
-            equals: typeof filters.active === 'boolean' ? filters.active : filters.active === 'true',
+            equals:
+              typeof filters.active === 'boolean'
+                ? filters.active
+                : filters.active === 'true',
           },
         },
       ];
@@ -117,6 +115,18 @@ export default class UsersRepository {
     });
   }
 
+  async updateUserPassword(id: string, password: string) {
+    return this.prisma.users.update({
+      where: {
+        id,
+      },
+      data: {
+        password,
+        tempPassword: false
+      },
+    });
+  }
+
   async changeActiveStatus(id: string, data: UpdateUserStatusDto) {
     return this.prisma.users.update({
       where: {
@@ -134,5 +144,20 @@ export default class UsersRepository {
         role: 'ADMIN',
       },
     });
+  }
+
+  async updateLastLogin(id: string): Promise<Users | null> {
+    try {
+      return this.prisma.users.update({
+        where: {
+          id,
+        },
+        data: {
+          lastLogin: new Date(),
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException('Error updating last login');
+    }
   }
 }

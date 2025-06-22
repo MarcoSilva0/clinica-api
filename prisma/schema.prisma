@@ -29,15 +29,16 @@ enum AppoimentsStatus {
 }
 
 model Users {
-  id           String  @id @default(uuid())
+  id           String    @id @default(uuid())
   name         String
-  email        String  @unique
+  email        String    @unique
   password     String
   photo        String?
-  role         Role    @default(SECRETARIA)
-  active       Boolean @default(true)
+  role         Role      @default(SECRETARIA)
+  active       Boolean   @default(true)
   birth_date   String?
-  tempPassword Boolean @default(false)
+  tempPassword Boolean   @default(false)
+  lastLogin    DateTime?
 
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt

@@ -13,7 +13,7 @@ export class CheckInitializedMiddleware implements NestMiddleware {
 
     const initialized = config?.initialized ?? false;
 
-const publicRoutes = ['/setup', '/setup/status'];
+    const publicRoutes = ['/setup', '/setup/status'];
     if (publicRoutes.includes(req.baseUrl)) {
       return next();
     }

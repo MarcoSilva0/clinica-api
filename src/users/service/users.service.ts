@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import UsersRepository from '../infra/users.repository';
-import { hash } from 'bcryptjs';
+import { hash, compare } from 'bcryptjs';
 import { ListAllUsersQueryDto } from '../domain/dto/list-all-users-query.dto';
 import { UpdateUserStatusDto } from '../domain/dto/update-user-status.dto';
 import { MailerService } from 'src/mailer/services/mailer.service';
@@ -27,12 +27,18 @@ export class UsersService {
     userCreated: Users;
     emailSended: boolean;
   }> {
+    const userExist = await this.usersRepository.findUserByEmail(user.email);
+
+    if (userExist) {
+      throw new BadRequestException('Usuário já cadastrado');
+    }
+
     const saltRounds = 10;
     if (user.role === Role.SECRETARIA) {
       user.password = await this.generateRandomPassword(10);
     }
     if (!user.password) {
-      throw new BadRequestException('Password is required');
+      throw new BadRequestException('Senha é obrigatória');
     }
     const passwordCrypt = await hash(user.password, saltRounds);
 
@@ -93,6 +99,15 @@ export class UsersService {
     return await this.usersRepository.update(id, user);
   }
 
+  async updateUserPassword(
+    id: string,
+    password: string,
+  ): Promise<Users | null> {
+    const saltRounds = 10;
+    const passwordCrypt = await hash(password, saltRounds);
+    return await this.usersRepository.updateUserPassword(id, passwordCrypt);
+  }
+
   async changeActiveStatus(
     id: string,
     data: UpdateUserStatusDto,
@@ -102,6 +117,14 @@ export class UsersService {
 
   async findFirstAdmin(): Promise<Users | null> {
     return await this.usersRepository.findFirstAdmin();
+  }
+
+  async registerLogin(email: string): Promise<void> {
+    const user = await this.findOneByEmail(email);
+    if (!user) {
+      throw new BadRequestException('Usuário não encontrado');
+    }
+    await this.usersRepository.updateLastLogin(user.id);
   }
 
   /**
@@ -129,5 +152,12 @@ export class UsersService {
     );
     await this.shuffleArray(passwordArray);
     return passwordArray.join('');
+  }
+
+  async comparePassword(
+    password: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
+    return await compare(password, hashedPassword);
   }
 }
