@@ -42,6 +42,8 @@ export class AuthService {
       email: user.email,
       name: user.name,
       role: user.role,
+      tempPassword: user.tempPassword,
+      photo: user.photo,
     };
 
     const access_token = await this.jwtService.signAsync(payload);
@@ -55,6 +57,8 @@ export class AuthService {
       name: user.name,
       role: user.role,
       expiresOn,
+      tempPassword: user.tempPassword,
+      photo: user.photo,
       token: access_token,
     };
   }

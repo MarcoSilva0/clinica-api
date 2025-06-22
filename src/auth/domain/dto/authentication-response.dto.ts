@@ -19,4 +19,10 @@ export class AuthenticationResponseDto {
 
   @ApiProperty()
   id: string;
+
+  @ApiProperty()
+  tempPassword?: boolean;
+
+  @ApiProperty()
+  photo?: string | null;
 }
