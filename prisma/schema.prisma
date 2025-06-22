@@ -29,18 +29,21 @@ enum AppoimentsStatus {
 }
 
 model Users {
-  id       String  @id @default(uuid())
-  name     String
-  email    String  @unique
-  password String
-  photo    String?
-  role     Role    @default(SECRETARIA)
-  active   Boolean @default(true)
-  birth_date String?
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  password     String
+  photo        String?
+  role         Role      @default(SECRETARIA)
+  active       Boolean   @default(true)
+  birth_date   String?
+  tempPassword Boolean   @default(false)
+  lastLogin    DateTime?
 
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
-  Appoiments Appoiments[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  Appoiments         Appoiments[]
+  PasswordResetToken PasswordResetToken?
 }
 
 model ExamTypes {
@@ -81,5 +84,15 @@ model SystemConfig {
   maxWaitTimeMin Int
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt 
+  updatedAt DateTime @updatedAt
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  user      Users    @relation(fields: [userId], references: [id])
+  userId    String   @unique
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }

@@ -25,9 +25,6 @@ import { PaginationResponse } from 'src/core/utils/paginationResponse';
 import { UpdateUserStatusDto } from '../domain/dto/update-user-status.dto';
 import { UpdateUserDto } from '../domain/dto/update-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { User } from 'src/core/decorators/user.decorator';
-import { Roles } from 'src/auth/infra/decorators/role/role.decorator';
-import { Role } from '@prisma/client';
 
 @ApiTags('Usuário')
 @Controller('users')
