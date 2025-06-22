@@ -24,7 +24,10 @@ export class CreateAppoimentDto {
   examsTypeId: string;
 
   @ApiProperty()
-  date: Date;
+  date_start: Date;
+
+  @ApiProperty()
+  date_end: Date;
 
   @ApiProperty({ enumName: 'AppoimentsStatus', enum: AppoimentsStatus })
   status: AppoimentsStatus;

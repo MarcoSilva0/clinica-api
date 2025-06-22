@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Appoiments, AppoimentsStatus } from '@prisma/client';
+import { Appoiments, AppoimentsStatus, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateAppoimentDto } from '../domain/dto/create-appoiment.dto';
 import {
@@ -29,89 +29,55 @@ export default class AppoimentsRepository {
       pageSize: filters.pageSize,
     });
 
+    const whereInput: Prisma.AppoimentsWhereInput = {
+      AND: [
+        {
+          date_start: {
+            gte: filters.startDate,
+            lte: filters.endDate,
+          },
+          date_end: {
+            gte: filters.startDate,
+            lte: filters.endDate,
+          },
+        },
+      ],
+      OR: [
+        {
+          patient_name: {
+            contains: filters.search,
+            mode: Prisma.QueryMode.insensitive,
+          },
+        },
+        {
+          patient_email: {
+            contains: filters.search,
+            mode: Prisma.QueryMode.insensitive,
+          },
+        },
+        {
+          patient_phone: {
+            contains: filters.search,
+            mode: Prisma.QueryMode.insensitive,
+          },
+        },
+        {
+          patient_cpf: {
+            contains: filters.search,
+            mode: Prisma.QueryMode.insensitive,
+          },
+        },
+      ],
+    };
+
     const totalAppoiments = await this.prisma.appoiments.count({
-      where: {
-        AND: [
-          {
-            date: {
-              gte: filters.startDate,
-              lte: filters.endDate,
-            },
-          },
-        ],
-        OR: [
-          {
-            patient_name: {
-              contains: filters.search,
-              mode: 'insensitive',
-            },
-          },
-          {
-            patient_email: {
-              contains: filters.search,
-              mode: 'insensitive',
-            },
-          },
-          {
-            patient_phone: {
-              contains: filters.search,
-              mode: 'insensitive',
-            },
-          },
-          {
-            patient_cpf: {
-              contains: filters.search,
-              mode: 'insensitive',
-            },
-          },
-        ],
-      },
+      where: whereInput,
     });
 
     const appoiments = await this.prisma.appoiments.findMany({
       skip,
       take,
-      where: {
-        AND: [
-          {
-            date:
-              filters.startDate && filters.endDate
-                ? {
-                    gte: filters.startDate,
-                    lte: filters.endDate,
-                  }
-                : undefined,
-          },
-        ],
-        OR: filters.search
-          ? [
-              {
-                patient_name: {
-                  contains: filters.search,
-                  mode: 'insensitive',
-                },
-              },
-              {
-                patient_email: {
-                  contains: filters.search,
-                  mode: 'insensitive',
-                },
-              },
-              {
-                patient_phone: {
-                  contains: filters.search,
-                  mode: 'insensitive',
-                },
-              },
-              {
-                patient_cpf: {
-                  contains: filters.search,
-                  mode: 'insensitive',
-                },
-              },
-            ]
-          : undefined,
-      },
+      where: whereInput,
       orderBy: { createdAt: 'desc' },
     });
 
@@ -135,7 +101,6 @@ export default class AppoimentsRepository {
     return this.prisma.appoiments.create({
       data: {
         ...appoiment,
-        date: new Date(appoiment.date).toISOString(),
       },
     });
   }
