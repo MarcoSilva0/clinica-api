@@ -16,7 +16,7 @@ export class AuthService {
   ): Promise<AuthenticationResponseDto> {
     const user = await this.usersService.findOneByEmail(email);
     if (!user || (!user.password && password)) {
-      throw new UnauthorizedException('E-mail or password incorrect');
+      throw new UnauthorizedException('E-mail ou senha inválidos.');
     }
 
     const payload = {
@@ -28,9 +28,10 @@ export class AuthService {
 
     const access_token = await this.jwtService.signAsync(payload);
 
-    const expiresOn = await this.jwtService.decode(access_token).exp
+    const expiresOn = await this.jwtService.decode(access_token).exp;
 
     return {
+      id: user.id,
       email: user.email,
       name: user.name,
       role: user.role,

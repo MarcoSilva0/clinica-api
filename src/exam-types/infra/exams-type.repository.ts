@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import AppoimentsRepository from 'src/appoiments/infra/appoiments.repository';
 import { CreateExamTypeDto } from '../domain/dto/create-exam-type.dto';
 import {
   mountPagination,
@@ -10,7 +11,10 @@ import { ListAllExamsTypeQueryDto } from '../domain/dto/list-all-exams-type-quer
 
 @Injectable()
 export default class examsTypeRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly appoimentsRepository: AppoimentsRepository,
+  ) {}
 
   async createExamType(examType: CreateExamTypeDto) {
     return this.prisma.examTypes.create({
@@ -46,6 +50,15 @@ export default class examsTypeRepository {
   }
 
   async remove(id: string) {
+    const linkedAppointments =
+      await this.appoimentsRepository.findByExamTypeId(id);
+
+    if (linkedAppointments.length > 0) {
+      throw new Error(
+        'Este tipo de exame está vinculado a agendamentos e não pode ser excluído.',
+      );
+    }
+
     return this.prisma.examTypes.delete({
       where: {
         id,

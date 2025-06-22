@@ -5,7 +5,10 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.enableCors();
+  app.enableCors(
+    {    origin: 'http://localhost:3000', // Coloque aqui o endereço do seu frontend
+    credentials: true, }
+  );
 
   const config = new DocumentBuilder()
     .setTitle('Clinic Check API')

@@ -39,17 +39,20 @@ export class UsersService {
     return { userCreated, emailSended: emailSender.success };
   }
 
-  async createAdminUser(user: User): Promise<User> {
-    const saltRounds = 10;
-    const passwordCrypt = await hash(user.password, saltRounds);
-    const userCreated = await this.usersRepository.createUser({
-      ...user,
-      active: true,
-      role: 'ADMIN',
-      password: passwordCrypt,
-    });
-    return userCreated;
+async createAdminUser(user: User): Promise<User> {
+  if (!user.password) {
+    throw new Error('Password is required to create an admin user.');
   }
+  const saltRounds = 10;
+  const passwordCrypt = await hash(user.password, saltRounds);
+  const userCreated = await this.usersRepository.createUser({
+    ...user,
+    active: true,
+    role: 'ADMIN',
+    password: passwordCrypt,
+  });
+  return userCreated;
+}
 
   async findAll(filters: ListAllUsersQueryDto): Promise<any> {
     return await this.usersRepository.findAll(filters);
