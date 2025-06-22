@@ -16,7 +16,6 @@ datasource db {
 enum Role {
   ADMIN
   SECRETARIA
-  TOTEM
 }
 
 enum AppoimentsStatus {
@@ -44,6 +43,7 @@ model Users {
   updatedAt          DateTime            @updatedAt
   Appoiments         Appoiments[]
   PasswordResetToken PasswordResetToken?
+  EmailResetToken    EmailResetToken?
 }
 
 model ExamTypes {
@@ -70,7 +70,8 @@ model Appoiments {
   userId             String
   examsType          ExamTypes        @relation(fields: [examsTypeId], references: [id], onDelete: Cascade)
   examsTypeId        String
-  date               DateTime
+  date_start         DateTime
+  date_end           DateTime
   status             AppoimentsStatus @default(SCHEDULED)
   details            String
 
@@ -88,6 +89,16 @@ model SystemConfig {
 }
 
 model PasswordResetToken {
+  id        String   @id @default(uuid())
+  user      Users    @relation(fields: [userId], references: [id])
+  userId    String   @unique
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model EmailResetToken {
   id        String   @id @default(uuid())
   user      Users    @relation(fields: [userId], references: [id])
   userId    String   @unique
