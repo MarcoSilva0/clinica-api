@@ -9,6 +9,7 @@ import { Users } from '@prisma/client';
 import { UpdateUserStatusDto } from '../domain/dto/update-user-status.dto';
 import { UserEntity } from '../domain/entities/user.entity';
 import { UploadService } from 'src/upload/service/upload.service';
+import { UpdateUserDto } from '../domain/dto/update-user.dto';
 
 @Injectable()
 export default class UsersRepository {
@@ -105,7 +106,7 @@ export default class UsersRepository {
     });
   }
 
-  async update(id: string, user: UserEntity) {
+  async update(id: string, user: UpdateUserDto) {
     return this.prisma.users.update({
       where: {
         id,
