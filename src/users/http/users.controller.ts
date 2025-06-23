@@ -25,6 +25,7 @@ import { PaginationResponse } from 'src/core/utils/paginationResponse';
 import { UpdateUserStatusDto } from '../domain/dto/update-user-status.dto';
 import { UpdateUserDto } from '../domain/dto/update-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Roles } from 'src/auth/infra/decorators/role/role.decorator';
 
 @ApiTags('Usuário')
 @Controller('users')
@@ -47,19 +48,40 @@ export class UsersController {
         fileIsRequired: false,
       }),
     )
-    file?: Express.Multer.File,
+    photo?: Express.Multer.File,
   ): Promise<any> {
-    return await this.usersService.createUser(createUser, file);
+    return await this.usersService.createUser(createUser, photo);
   }
 
+  @Roles('ADMIN')
   @Delete(':id')
   async remove(@Param('id') userId: string) {
     return await this.usersService.remove(userId);
   }
 
   @Put(':id')
-  async update(@Param('id') userId: string, @Body() examType: UpdateUserDto) {
-    return await this.usersService.update(userId, examType);
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiResponse({
+    status: 200,
+    description: 'User updated successfully',
+    type: UserEntity,
+  })
+  async update(
+    @Param('id') userId: string,
+    @Body() user: UpdateUserDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new MaxFileSizeValidator({ maxSize: 2000000 })],
+        fileIsRequired: false,
+      }),
+    )
+    file?: Express.Multer.File,
+  ) {
+    return await this.usersService.update(userId, {
+      ...user,
+      photo: file ? file.path : undefined,
+    });
   }
 
   @Patch(':id/status')
@@ -68,6 +90,35 @@ export class UsersController {
     @Body() data: UpdateUserStatusDto,
   ) {
     return await this.usersService.changeActiveStatus(userId, data);
+  }
+
+  @Patch(':id/photo')
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiResponse({
+    status: 200,
+    description: 'User photo updated successfully',
+    type: UserEntity,
+  })
+  async updatePhoto(
+    @Param('id') userId: string,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new MaxFileSizeValidator({ maxSize: 2000000 })],
+        fileIsRequired: false,
+      }),
+    )
+    file?: Express.Multer.File,
+  ): Promise<UserEntity | null> {
+    if (!file) {
+      throw new NotFoundException('Photo not found');
+    }
+    const updatedUser = await this.usersService.updatePhoto(userId, file);
+
+    if (!updatedUser) {
+      throw new NotFoundException('User not found');
+    }
+    return UserEntity.toHttpResponse(updatedUser);
   }
 
   @Get()
@@ -92,5 +143,25 @@ export class UsersController {
     }
 
     return UserEntity.toHttpResponse(user);
+  }
+
+  @Post(':id/request-password-reset')
+  async requestPasswordReset(
+    @Param('id') id: string,
+    @Body('email') newEmail: string,
+  ): Promise<void> {
+    return await this.usersService.requestEmailChange(id, newEmail);
+  }
+
+  @Post(':id/confirm-email-change')
+  async confirmEmailChange(
+    @Param('id') id: string,
+    @Body('code') code: string,
+  ): Promise<{ message: string }> {
+    const emailChanged = await this.usersService.changeEmail(id, code);
+    if (!emailChanged) {
+      throw new NotFoundException('Email change request not found or expired');
+    }
+    return { message: 'Email changed successfully' };
   }
 }

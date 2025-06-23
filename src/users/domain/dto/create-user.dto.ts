@@ -1,12 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
-import {
-  IsEnum,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  ValidateIf,
-} from 'class-validator';
+import { IsEnum, IsNotEmpty, IsString, ValidateIf } from 'class-validator';
 
 export class CreateUserDto {
   @ApiProperty()
@@ -26,7 +20,7 @@ export class CreateUserDto {
   role: Role;
 
   @ApiPropertyOptional({ type: 'string', format: 'binary' })
-  file: Express.Multer.File;
+  photo: Express.Multer.File;
 
   @ApiProperty()
   birth_date: string;

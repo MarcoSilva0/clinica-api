@@ -10,6 +10,8 @@ import multerConfig from 'src/upload/multer-config';
 import { UploadModule } from 'src/upload/upload.module';
 import { MailerModule } from 'src/mailer/mailer.module';
 import { RolesGuard } from 'src/auth/infra/guard/role/role.guard';
+import ResetEmailRepository from './infra/reset-email.repository';
+import { ResetEmailService } from './service/reset-email.service';
 
 @Module({
   imports: [
@@ -32,6 +34,8 @@ import { RolesGuard } from 'src/auth/infra/guard/role/role.guard';
     },
     UsersService,
     UsersRepository,
+    ResetEmailService,
+    ResetEmailRepository,
   ],
   exports: [UsersService, UsersRepository],
 })

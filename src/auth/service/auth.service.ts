@@ -10,6 +10,7 @@ import { AuthenticationResponseDto } from '../domain/dto/authentication-response
 import { MailerService } from 'src/mailer/services/mailer.service';
 import AuthRepository from '../infra/auth.repository';
 import { Users } from '@prisma/client';
+import { generateCode } from 'src/core/utils/genereta-random-code';
 
 @Injectable()
 export class AuthService {
@@ -63,9 +64,6 @@ export class AuthService {
     };
   }
 
-  private generateCode = () =>
-    Math.floor(100000 + Math.random() * 900000).toString();
-
   async requestPasswordReset(email: string): Promise<void> {
     const user = await this.usersService.findOneByEmail(email);
     if (!user) {
@@ -76,7 +74,7 @@ export class AuthService {
   }
 
   async sendResetPasswordEmail(user: Users): Promise<void> {
-    const code = this.generateCode();
+    const code = generateCode();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
     this.mailerService.sendEmail(

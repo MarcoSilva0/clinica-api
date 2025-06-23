@@ -82,6 +82,7 @@ CREATE TABLE "PasswordResetToken" (
 -- CreateTable
 CREATE TABLE "EmailResetToken" (
     "id" TEXT NOT NULL,
+    "newEmail" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "token" TEXT NOT NULL,
     "expiresAt" TIMESTAMP(3) NOT NULL,
@@ -98,13 +99,10 @@ CREATE UNIQUE INDEX "Users_email_key" ON "Users"("email");
 CREATE UNIQUE INDEX "PasswordResetToken_userId_key" ON "PasswordResetToken"("userId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "PasswordResetToken_token_key" ON "PasswordResetToken"("token");
+CREATE UNIQUE INDEX "EmailResetToken_newEmail_key" ON "EmailResetToken"("newEmail");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "EmailResetToken_userId_key" ON "EmailResetToken"("userId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "EmailResetToken_token_key" ON "EmailResetToken"("token");
 
 -- AddForeignKey
 ALTER TABLE "Appoiments" ADD CONSTRAINT "Appoiments_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -8,12 +8,17 @@ import { Role, Users } from '@prisma/client';
 import { CreateUserDto } from '../domain/dto/create-user.dto';
 import { CreateUserAdminDto } from '../domain/dto/create-user-admin.dto';
 import { UpdateUserDto } from '../domain/dto/update-user.dto';
+import { ResetEmailService } from './reset-email.service';
+import * as fs from 'fs';
+import * as path from 'path';
+import { UpdateUserModel } from '../domain/dto/update-user-model.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly mailerService: MailerService,
+    private readonly resetEmailService: ResetEmailService,
   ) {}
 
   async findOneByEmail(email: string): Promise<Users | null> {
@@ -47,6 +52,7 @@ export class UsersService {
       photo: photo?.path,
       tempPassword: user.role === Role.SECRETARIA,
       password: passwordCrypt,
+      active: true,
     });
 
     const isSecretaria = user.role === Role.SECRETARIA;
@@ -92,11 +98,45 @@ export class UsersService {
   }
 
   async remove(id: string) {
+    const user = await this.usersRepository.findOne(id);
+    if (!user) {
+      throw new BadRequestException('Usuário não encontrado');
+    }
+
+    if (user.role === Role.ADMIN) {
+      throw new BadRequestException(
+        'Não é possível remover um usuário administrador',
+      );
+    }
+
+    if (user.lastLogin) {
+      throw new BadRequestException(
+        'Não é possível remover um usuário que já fez login',
+      );
+    }
+
     return await this.usersRepository.remove(id);
   }
 
-  async update(id: string, user: UpdateUserDto): Promise<Users | null> {
-    return await this.usersRepository.update(id, user);
+  async update(id: string, user: UpdateUserModel): Promise<Users | null> {
+    const existingUser = await this.usersRepository.findOne(id);
+    if (!existingUser) {
+      throw new BadRequestException('Usuário não encontrado');
+    }
+
+    if (existingUser.photo && user.photo) {
+      fs.unlink(existingUser.photo, (err) => {
+        if (err) {
+          console.error('Erro ao remover a foto antiga:', err);
+        } else {
+          console.log('Foto antiga removida com sucesso');
+        }
+      });
+    }
+
+    return await this.usersRepository.update(id, {
+      ...user,
+    });
   }
 
   async updateUserPassword(
@@ -159,5 +199,70 @@ export class UsersService {
     hashedPassword: string,
   ): Promise<boolean> {
     return await compare(password, hashedPassword);
+  }
+
+  async requestEmailChange(id: string, newEmail: string): Promise<void> {
+    const emailAlreadyExists =
+      await this.usersRepository.findUserByEmail(newEmail);
+
+    if (emailAlreadyExists) {
+      throw new BadRequestException('E-mail já cadastrado');
+    }
+
+    const user = await this.usersRepository.findOne(id);
+
+    if (!user) {
+      throw new BadRequestException('Usuário não encontrado');
+    }
+    if (user.email === newEmail) {
+      throw new BadRequestException(
+        'O novo e-mail não pode ser o mesmo do atual',
+      );
+    }
+
+    await this.resetEmailService.requestChangeEmail(user, newEmail);
+  }
+
+  async changeEmail(userId: string, code: string) {
+    const resetToken = await this.resetEmailService.validateChangeEmailToken(
+      code,
+      userId,
+    );
+
+    if (!resetToken) {
+      throw new BadRequestException('Token inválido ou expirado');
+    }
+
+    return await this.usersRepository.updateUserEmail(userId, resetToken);
+  }
+
+  async updatePhoto(
+    userId: string,
+    photo: Express.Multer.File,
+  ): Promise<Partial<Users> | null> {
+    const user = await this.usersRepository.findOne(userId);
+    if (!user) {
+      throw new BadRequestException('Usuário não encontrado');
+    }
+
+    if (!photo || !photo.path) {
+      throw new BadRequestException('Foto não encontrada');
+    }
+
+    if (user.photo) {
+      fs.unlink(user.photo, (err) => {
+        if (err) {
+          console.error('Erro ao remover a foto antiga:', err);
+        } else {
+          console.log('Foto antiga removida com sucesso');
+        }
+      });
+    }
+
+    const { password, ...userWithoutPassword } =
+      await this.usersRepository.updateUserPhoto(userId, photo.path);
+    console.log(userWithoutPassword);
+
+    return userWithoutPassword;
   }
 }
