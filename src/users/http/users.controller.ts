@@ -157,6 +157,18 @@ export class UsersController {
   }
 
   @Post(':id/request-password-reset')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: {
+          type: 'string',
+          format: 'email',
+          description: 'New email address for password reset',
+        },
+      },
+    },
+  })
   async requestPasswordReset(
     @Param('id') id: string,
     @Body('email') newEmail: string,
@@ -165,6 +177,17 @@ export class UsersController {
   }
 
   @Post(':id/confirm-email-change')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        code: {
+          type: 'string',
+          description: 'Confirmation code for email change',
+        },
+      },
+    },
+  })
   async confirmEmailChange(
     @Param('id') id: string,
     @Body('code') code: string,
