@@ -5,6 +5,7 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { AuthGuard } from 'src/auth/infra/guard/auth/auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 import AppoimentsRepository from './infra/appoiments.repository';
+import { ExamTypesModule } from 'src/exam-types/exam-types.module';
 
 @Module({
   imports: [PrismaModule],
@@ -17,5 +18,6 @@ import AppoimentsRepository from './infra/appoiments.repository';
     AppoimentsService,
     AppoimentsRepository,
   ],
+  exports: [AppoimentsService, AppoimentsRepository],
 })
 export class AppoimentsModule {}

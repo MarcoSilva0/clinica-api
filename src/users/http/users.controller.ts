@@ -15,7 +15,7 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiConsumes, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from '../service/users.service';
 import { CreateUserDto } from '../domain/dto/create-user.dto';
 import { UserEntity } from '../domain/entities/user.entity';
@@ -99,6 +99,17 @@ export class UsersController {
     status: 200,
     description: 'User photo updated successfully',
     type: UserEntity,
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
   })
   async updatePhoto(
     @Param('id') userId: string,

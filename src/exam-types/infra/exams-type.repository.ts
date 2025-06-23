@@ -10,7 +10,7 @@ import { ExamTypes } from '@prisma/client';
 import { ListAllExamsTypeQueryDto } from '../domain/dto/list-all-exams-type-query.dto';
 
 @Injectable()
-export default class examsTypeRepository {
+export class ExamsTypeRepository {
   constructor(
     private readonly prisma: PrismaService,
     private readonly appoimentsRepository: AppoimentsRepository,

@@ -54,6 +54,19 @@ export class AppoimentsController {
     return this.appoimentsService.findOne(id);
   }
 
+  @Post(':cpf/confirmed')
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de agendamentos do paciente encontrada com sucesso',
+    type: AppoimentsEntity,
+    isArray: true,
+  })
+  async findAllAppoimentsByPatientCpf(
+    @Param('cpf') patientCpf: string,
+  ): Promise<Appoiments[]> {
+    return this.appoimentsService.confirmPatientTodayAppoiments(patientCpf);
+  }
+
   @Put(':id')
   async update(
     @Param('id') id: string,
