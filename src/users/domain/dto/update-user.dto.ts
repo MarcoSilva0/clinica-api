@@ -12,7 +12,7 @@ export class UpdateUserDto {
   active: boolean;
 
   @ApiPropertyOptional({ type: 'string', format: 'binary' })
-  photo?: Express.Multer.File;
+  file?: Express.Multer.File;
 
   @ApiProperty()
   birth_date: string;

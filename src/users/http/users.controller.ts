@@ -48,9 +48,9 @@ export class UsersController {
         fileIsRequired: false,
       }),
     )
-    photo?: Express.Multer.File,
+    file?: Express.Multer.File,
   ): Promise<any> {
-    return await this.usersService.createUser(createUser, photo);
+    return await this.usersService.createUser(createUser, file);
   }
 
   @Roles('ADMIN')
