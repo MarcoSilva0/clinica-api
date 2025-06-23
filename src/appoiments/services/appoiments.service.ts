@@ -26,4 +26,12 @@ export class AppoimentsService {
   async changeStatus(id: string, status: { status: any }): Promise<any | null> {
     return this.appoimentsRepository.changeStatus(id, status);
   }
+
+  async findAllAppoimentsByExamTypeId(examTypeId: string): Promise<number> {
+    return this.appoimentsRepository.findAllAppoimentsByExamTypeId(examTypeId);
+  }
+
+  async confirmPatientTodayAppoiments(patientCpf: string): Promise<any[]> {
+    return this.appoimentsRepository.confirmPatientTodayAppoiments(patientCpf);
+  }
 }

@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 
 export class UserEntity {
@@ -20,6 +20,9 @@ export class UserEntity {
   @ApiProperty({ enumName: 'Role', enum: Role })
   role: Role;
 
+  @ApiPropertyOptional()
+  phone: string;
+
   @ApiProperty()
   active: boolean;
 
@@ -39,6 +42,7 @@ export class UserEntity {
     password: string,
     createdAt: Date,
     updatedAt: Date,
+    photo?: string,
   ) {
     this.id = id;
     this.name = name;
@@ -46,6 +50,7 @@ export class UserEntity {
     this.password = password;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
+    this.photo = photo || '';
   }
 
   static toHttpResponse(user: any): UserEntity {
@@ -53,6 +58,7 @@ export class UserEntity {
       user.id,
       user.name,
       user.email,
+      user.photo || '',
       user.password,
       user.createdAt,
       user.updatedAt,

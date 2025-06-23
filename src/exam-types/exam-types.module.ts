@@ -4,19 +4,18 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from 'src/auth/infra/guard/auth/auth.guard';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { ExamsTypeService } from './service/exams-type.service';
-import examsTypeRepository from './infra/exams-type.repository';
-import AppoimentsRepository from 'src/appoiments/infra/appoiments.repository';
+import { AppoimentsModule } from 'src/appoiments/appoiments.module';
+import { ExamsTypeRepository } from './infra/exams-type.repository';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, AppoimentsModule],
   providers: [
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
     ExamsTypeService,
-    examsTypeRepository,
-    AppoimentsRepository,
+    ExamsTypeRepository,
   ],
   controllers: [ExamTypesController],
 })

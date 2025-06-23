@@ -7,7 +7,6 @@ import {
   PaginationResponse,
 } from 'src/core/utils/paginationResponse';
 import { ListAllAppoimentsQueryDto } from '../domain/dto/list-all-appoiments.dto';
-import { AppoimentsEntity } from '../domain/entities/appoiments.entity';
 
 @Injectable()
 export default class AppoimentsRepository {
@@ -101,6 +100,8 @@ export default class AppoimentsRepository {
     return this.prisma.appoiments.create({
       data: {
         ...appoiment,
+        patient_cpf: appoiment.patient_cpf.replace(/\D/g, ''),
+        patient_phone: appoiment.patient_phone.replace(/\D/g, ''),
       },
     });
   }
@@ -125,5 +126,69 @@ export default class AppoimentsRepository {
         status: status.status,
       },
     });
+  }
+
+  async findAllAppoimentsByExamTypeId(examTypeId: string): Promise<number> {
+    return this.prisma.appoiments.count({
+      where: {
+        examsTypeId: examTypeId,
+      },
+    });
+  }
+
+  async confirmPatientTodayAppoiments(patientCpf: string): Promise<Appoiments[]> {
+    const now = new Date();
+    const startOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      0,
+      0,
+      0,
+      0,
+    );
+    const endOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23,
+      59,
+      59,
+      999,
+    );
+
+    await this.prisma.appoiments.updateMany({
+      where: {
+        patient_cpf: patientCpf.replace(/\D/g, ''),
+        date_start: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+        date_end: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+      },
+      data: {
+        status: AppoimentsStatus.CONFIRMED,
+      },
+    });
+
+    const appoiments = await this.prisma.appoiments.findMany({
+      where: {
+        patient_cpf: patientCpf.replace(/\D/g, ''),
+        date_start: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+        date_end: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+        status: AppoimentsStatus.CONFIRMED,
+      },
+    });
+
+    return appoiments;
   }
 }

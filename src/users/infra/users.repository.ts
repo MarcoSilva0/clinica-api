@@ -7,7 +7,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { ListAllUsersQueryDto } from '../domain/dto/list-all-users-query.dto';
 import { Users } from '@prisma/client';
 import { UpdateUserStatusDto } from '../domain/dto/update-user-status.dto';
-import { UpdateUserDto } from '../domain/dto/update-user.dto';
+import { CreateUserModel } from '../domain/dto/create-user-model.dto';
+import { UpdateUserModel } from '../domain/dto/update-user-model.dto';
 
 @Injectable()
 export default class UsersRepository {
@@ -21,10 +22,14 @@ export default class UsersRepository {
     });
   }
 
-  async createUser(user: any) {
+  async createUser(user: CreateUserModel): Promise<Users> {
+    if (!user.password) {
+      throw new InternalServerErrorException('Password is required');
+    }
     return this.prisma.users.create({
       data: {
         ...user,
+        password: user.password,
       },
     });
   }
@@ -104,13 +109,24 @@ export default class UsersRepository {
     });
   }
 
-  async update(id: string, user: UpdateUserDto) {
+  async update(id: string, user: UpdateUserModel) {
     return this.prisma.users.update({
       where: {
         id,
       },
       data: {
         ...user,
+      },
+    });
+  }
+
+  async updateUserPhoto(id: string, photo: string) {
+    return this.prisma.users.update({
+      where: {
+        id,
+      },
+      data: {
+        photo,
       },
     });
   }
@@ -122,7 +138,18 @@ export default class UsersRepository {
       },
       data: {
         password,
-        tempPassword: false
+        tempPassword: false,
+      },
+    });
+  }
+
+  async updateUserEmail(id: string, email: string) {
+    return this.prisma.users.update({
+      where: {
+        id,
+      },
+      data: {
+        email,
       },
     });
   }

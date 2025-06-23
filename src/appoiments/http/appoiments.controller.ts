@@ -15,8 +15,8 @@ import { AppoimentsEntity } from '../domain/entities/appoiments.entity';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateAppoimentDto } from '../domain/dto/create-appoiment.dto';
 import { Appoiments } from '@prisma/client';
-import { ListAllExamsTypeQueryDto } from 'src/exam-types/domain/dto/list-all-exams-type-query.dto';
 import { ListAllAppoimentsQueryDto } from '../domain/dto/list-all-appoiments.dto';
+import { Public } from 'src/auth/infra/decorators/public/public.decorator';
 
 @ApiTags('Agendamentos')
 @Controller('appoiments')
@@ -35,6 +35,7 @@ export class AppoimentsController {
     return this.appoimentsService.createAppoiment(appoiment);
   }
 
+  @Public()
   @Get()
   @ApiPaginatedResponse(AppoimentsEntity)
   async findAll(
@@ -51,6 +52,19 @@ export class AppoimentsController {
   })
   async findOne(@Param('id') id: string): Promise<any | null> {
     return this.appoimentsService.findOne(id);
+  }
+
+  @Post(':cpf/confirmed')
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de agendamentos do paciente encontrada com sucesso',
+    type: AppoimentsEntity,
+    isArray: true,
+  })
+  async findAllAppoimentsByPatientCpf(
+    @Param('cpf') patientCpf: string,
+  ): Promise<Appoiments[]> {
+    return this.appoimentsService.confirmPatientTodayAppoiments(patientCpf);
   }
 
   @Put(':id')
