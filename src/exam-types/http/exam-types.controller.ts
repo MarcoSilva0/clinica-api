@@ -18,6 +18,7 @@ import { PaginationResponse } from 'src/core/utils/paginationResponse';
 import { ListAllExamsTypeQueryDto } from '../domain/dto/list-all-exams-type-query.dto';
 import { ApiPaginatedResponse } from 'src/core/decorators/paginated-response.decorator';
 import { UpdateExamsTypeStatusDto } from '../domain/dto/update-exams-type-status.dto';
+import { Public } from 'src/auth/infra/decorators/public/public.decorator';
 
 @ApiTags('Tipos de Exames')
 @Controller('exams-types')
@@ -55,6 +56,7 @@ export class ExamTypesController {
     return await this.examTypeService.changeActiveStatus(examTypeId, status);
   }
 
+  @Public()
   @Get()
   @ApiPaginatedResponse(ExamType)
   async listAll(
