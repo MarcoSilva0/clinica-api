@@ -125,6 +125,8 @@ export class UsersService {
       throw new BadRequestException('Usuário não encontrado');
     }
 
+    const userParsed = UserEntity.parseUserToUpdateDto(user);
+
     if (existingUser.photo && user.photo) {
       fs.unlink(existingUser.photo, (err) => {
         if (err) {
@@ -136,7 +138,7 @@ export class UsersService {
     }
 
     return await this.usersRepository.update(id, {
-      ...user,
+      ...userParsed,
     });
   }
 

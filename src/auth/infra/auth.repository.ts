@@ -15,11 +15,13 @@ export default class AuthRepository {
       update: {
         token: code,
         expiresAt,
+        used: false,
       },
       create: {
         userId: user,
         token: code,
         expiresAt,
+        used: false,
       },
     });
   }
