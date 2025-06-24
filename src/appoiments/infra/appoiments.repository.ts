@@ -35,10 +35,18 @@ export default class AppoimentsRepository {
             gte: filters.startDate,
             lte: filters.endDate,
           },
+        },
+        {
           date_end: {
             gte: filters.startDate,
             lte: filters.endDate,
           },
+        },
+        {
+          status: filters.status,
+        },
+        {
+          examsTypeId: filters.examsTypeId,
         },
       ],
       OR: [
@@ -136,7 +144,9 @@ export default class AppoimentsRepository {
     });
   }
 
-  async confirmPatientTodayAppoiments(patientCpf: string): Promise<Appoiments[]> {
+  async confirmPatientTodayAppoiments(
+    patientCpf: string,
+  ): Promise<Appoiments[]> {
     const now = new Date();
     const startOfDay = new Date(
       now.getFullYear(),

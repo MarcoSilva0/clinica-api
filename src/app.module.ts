@@ -9,6 +9,7 @@ import { UploadModule } from './upload/upload.module';
 import { MailerModule } from './mailer/mailer.module';
 import { SystemConfigModule } from './system-config/system-config.module';
 import { CheckInitializedMiddleware } from './core/middlewares/check-initialized.middleware';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { CheckInitializedMiddleware } from './core/middlewares/check-initialized
     UploadModule,
     MailerModule,
     SystemConfigModule,
+    DashboardModule,
   ],
   controllers: [],
   providers: [],

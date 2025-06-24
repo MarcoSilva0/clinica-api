@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { AppoimentsStatus } from '@prisma/client';
 
 export class ListAllAppoimentsQueryDto {
   @ApiProperty({
@@ -21,6 +22,20 @@ export class ListAllAppoimentsQueryDto {
     default: '',
   })
   search?: string;
+
+  @ApiProperty({
+    required: false,
+    description: 'Filter by exam type ID',
+    default: '',
+  })
+  examsTypeId?: string;
+
+  @ApiProperty({
+    required: false,
+    description: 'Filter by appoiment status',
+    default: '',
+  })
+  status?: AppoimentsStatus;
 
   @ApiProperty({
     required: false,

@@ -17,6 +17,7 @@ import { CreateAppoimentDto } from '../domain/dto/create-appoiment.dto';
 import { Appoiments } from '@prisma/client';
 import { ListAllAppoimentsQueryDto } from '../domain/dto/list-all-appoiments.dto';
 import { Public } from 'src/auth/infra/decorators/public/public.decorator';
+import { UpdateAppoimentStatusDto } from '../domain/dto/update-appoiment-status.dto';
 
 @ApiTags('Agendamentos')
 @Controller('appoiments')
@@ -54,6 +55,7 @@ export class AppoimentsController {
     return this.appoimentsService.findOne(id);
   }
 
+  @Public()
   @Post(':cpf/confirmed')
   @ApiResponse({
     status: 200,
@@ -76,7 +78,10 @@ export class AppoimentsController {
   }
 
   @Patch(':id/status')
-  async changeStatus(id: string, status: { status: any }): Promise<any | null> {
+  async changeStatus(
+    @Param('id') id: string,
+    @Body() status: UpdateAppoimentStatusDto,
+  ): Promise<any | null> {
     return this.appoimentsService.changeStatus(id, status);
   }
 }

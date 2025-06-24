@@ -19,6 +19,8 @@ enum AppoimentsStatus {
   IN_APPOINTMENT
   FINISIHED
   CANCELED
+  GIVEN_UP
+  NO_SHOW
 }
 
 model Users {
