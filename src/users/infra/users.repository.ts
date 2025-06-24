@@ -116,6 +116,7 @@ export default class UsersRepository {
       },
       data: {
         ...user,
+        active: String(user.active) === 'false' ? false : true,
       },
     });
   }

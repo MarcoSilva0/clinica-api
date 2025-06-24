@@ -52,7 +52,6 @@ export class UsersService {
       photo: photo?.path,
       tempPassword: user.role === Role.SECRETARIA,
       password: passwordCrypt,
-      active: true,
     });
 
     const isSecretaria = user.role === Role.SECRETARIA;
@@ -82,7 +81,6 @@ export class UsersService {
     const passwordCrypt = await hash(user.password, saltRounds);
     return await this.usersRepository.createUser({
       ...user,
-      active: true,
       tempPassword: false,
       role: Role.ADMIN,
       password: passwordCrypt,
@@ -214,6 +212,7 @@ export class UsersService {
     if (!user) {
       throw new BadRequestException('Usuário não encontrado');
     }
+
     if (user.email === newEmail) {
       throw new BadRequestException(
         'O novo e-mail não pode ser o mesmo do atual',
@@ -228,6 +227,15 @@ export class UsersService {
       code,
       userId,
     );
+
+    const codeFormatted = String(code).trim();
+    if (codeFormatted.length !== 6) {
+      throw new BadRequestException('Código inválido');
+    }
+
+    if (typeof resetToken !== 'string') {
+      throw new BadRequestException('Token inválido ou expirado');
+    }
 
     if (!resetToken) {
       throw new BadRequestException('Token inválido ou expirado');

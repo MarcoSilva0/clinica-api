@@ -14,6 +14,4 @@ export class CreateUserModel {
   birth_date?: string;
 
   tempPassword?: boolean;
-
-  active: boolean;
 }

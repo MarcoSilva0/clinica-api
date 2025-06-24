@@ -34,6 +34,7 @@ export class ResetEmailService {
       newEmail,
       code,
       expiresAt,
+      false,
     );
   }
 

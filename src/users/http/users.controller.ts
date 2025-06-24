@@ -26,6 +26,8 @@ import { UpdateUserStatusDto } from '../domain/dto/update-user-status.dto';
 import { UpdateUserDto } from '../domain/dto/update-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Roles } from 'src/auth/infra/decorators/role/role.decorator';
+import { requestChangeEmailDto } from '../domain/dto/request-change-email.dto';
+import { confirmChangeEmailDto } from '../domain/dto/confirm-change-email.dto';
 
 @ApiTags('Usuário')
 @Controller('users')
@@ -156,43 +158,20 @@ export class UsersController {
     return UserEntity.toHttpResponse(user);
   }
 
-  @Post(':id/request-password-reset')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        email: {
-          type: 'string',
-          format: 'email',
-          description: 'New email address for password reset',
-        },
-      },
-    },
-  })
-  async requestPasswordReset(
+  @Post(':id/request-change-email')
+  async requestChangeEmail(
     @Param('id') id: string,
-    @Body('email') newEmail: string,
+    @Body() data: requestChangeEmailDto,
   ): Promise<void> {
-    return await this.usersService.requestEmailChange(id, newEmail);
+    return await this.usersService.requestEmailChange(id, data.email);
   }
 
   @Post(':id/confirm-email-change')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        code: {
-          type: 'string',
-          description: 'Confirmation code for email change',
-        },
-      },
-    },
-  })
   async confirmEmailChange(
     @Param('id') id: string,
-    @Body('code') code: string,
+    @Body() data: confirmChangeEmailDto,
   ): Promise<{ message: string }> {
-    const emailChanged = await this.usersService.changeEmail(id, code);
+    const emailChanged = await this.usersService.changeEmail(id, data.code);
     if (!emailChanged) {
       throw new NotFoundException('Email change request not found or expired');
     }

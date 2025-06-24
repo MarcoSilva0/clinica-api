@@ -10,6 +10,7 @@ export default class ResetEmailRepository {
     newEmail: string,
     code: string,
     expiresAt: Date,
+    used: boolean = false,
   ): Promise<void> {
     await this.prisma.emailResetToken.upsert({
       where: { userId },
@@ -17,12 +18,14 @@ export default class ResetEmailRepository {
         newEmail,
         token: code,
         expiresAt,
+        used,
       },
       create: {
         userId,
         newEmail,
         token: code,
         expiresAt,
+        used: false,
       },
     });
   }
