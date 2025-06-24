@@ -52,7 +52,10 @@ export class AuthService {
 
     const expiresOn = await this.jwtService.decode(access_token).exp;
 
-    await this.usersService.registerLogin(user.email);
+    if (!user.tempPassword) {
+      await this.usersService.registerLogin(user.email);
+    }
+
     return {
       id: user.id,
       email: user.email,
@@ -136,9 +139,13 @@ export class AuthService {
       throw new NotFoundException('Usuário não encontrado');
     }
 
-    const isTemporaryPasswordValid = this.usersService.comparePassword(
+    const isTemporaryPasswordValid = await this.usersService.comparePassword(
       temporaryPassword,
       user.password,
+    );
+
+    console.log(
+      `Comparando senha temporária: ${temporaryPassword} com a senha do usuário: ${user.password}, resultado: ${isTemporaryPasswordValid}`,
     );
     if (!isTemporaryPasswordValid) {
       throw new UnauthorizedException('Senha temporária inválida');

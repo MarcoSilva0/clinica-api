@@ -18,6 +18,7 @@ import { RequestResetPasswordDto } from '../domain/dto/request-reset-password.dt
 import { ResetPasswordDto } from '../domain/dto/reset-password.dto';
 import { ResetTemporaryPasswordDto } from '../domain/dto/reset-temporary-password.dto';
 import { User } from 'src/core/decorators/user.decorator';
+import { UserEntity } from 'src/users/domain/entities/user.entity';
 
 @ApiTags('Autenticação')
 @Controller('auth')
@@ -68,8 +69,9 @@ export class AuthController {
   @Post('reset-temporary-password')
   async resetTemporaryPassword(
     @Body() data: ResetTemporaryPasswordDto,
-    @User('email') email: string,
+    @User() user: UserEntity,
   ) {
-    return await this.authService.resetTemporaryPassword({...data, email});
+    console.log('Resetting temporary password for:', user.email);
+    return await this.authService.resetTemporaryPassword({...data, email: user.email});
   }
 }
