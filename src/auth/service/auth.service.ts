@@ -11,6 +11,7 @@ import { MailerService } from 'src/mailer/services/mailer.service';
 import AuthRepository from '../infra/auth.repository';
 import { Users } from '@prisma/client';
 import { generateCode } from 'src/core/utils/genereta-random-code';
+import { ResetTemporaryPasswordDto } from '../domain/dto/reset-temporary-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -108,5 +109,41 @@ export class AuthService {
     await this.usersService.updateUserPassword(resetToken.user.id, newPassword);
 
     await this.authRepository.updateResetTokenAsUsed(resetToken.id);
+  }
+
+  async resetTemporaryPassword({
+    email,
+    temporaryPassword,
+    newPassword,
+    confirmNewPassword,
+  }: ResetTemporaryPasswordDto): Promise<void> {
+    if (!email) {
+      throw new BadRequestException('Todos os campos são obrigatórios');
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      throw new BadRequestException('As senhas não coincidem');
+    }
+
+    if (temporaryPassword === newPassword) {
+      throw new BadRequestException(
+        'A nova senha não pode ser igual à senha temporária',
+      );
+    }
+
+    const user = await this.usersService.findOneByEmail(email);
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    const isTemporaryPasswordValid = this.usersService.comparePassword(
+      temporaryPassword,
+      user.password,
+    );
+    if (!isTemporaryPasswordValid) {
+      throw new UnauthorizedException('Senha temporária inválida');
+    }
+
+    await this.usersService.updateUserPassword(user.id, newPassword);
   }
 }

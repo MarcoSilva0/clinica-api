@@ -151,6 +151,13 @@ export class UsersService {
     return await this.usersRepository.updateUserPassword(id, passwordCrypt);
   }
 
+  async compareUserPassword(
+    password_to: string,
+    password_from: string,
+  ): Promise<boolean> {
+    return await compare(password_to, password_from);
+  }
+
   async changeActiveStatus(
     id: string,
     data: UpdateUserStatusDto,

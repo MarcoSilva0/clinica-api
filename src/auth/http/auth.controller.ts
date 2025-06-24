@@ -16,6 +16,8 @@ import { AuthenticationResponseDto } from '../domain/dto/authentication-response
 import { ProfileResponseDto } from '../domain/dto/profile-response.dto';
 import { RequestResetPasswordDto } from '../domain/dto/request-reset-password.dto';
 import { ResetPasswordDto } from '../domain/dto/reset-password.dto';
+import { ResetTemporaryPasswordDto } from '../domain/dto/reset-temporary-password.dto';
+import { User } from 'src/core/decorators/user.decorator';
 
 @ApiTags('Autenticação')
 @Controller('auth')
@@ -61,5 +63,13 @@ export class AuthController {
     }
     await this.authService.resetPassword(dto.token, dto.email, dto.password);
     return { message: 'Senha redefinida com sucesso' };
+  }
+
+  @Post('reset-temporary-password')
+  async resetTemporaryPassword(
+    @Body() data: ResetTemporaryPasswordDto,
+    @User('email') email: string,
+  ) {
+    return await this.authService.resetTemporaryPassword({...data, email});
   }
 }
