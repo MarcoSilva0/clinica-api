@@ -12,6 +12,7 @@ import { ResetEmailService } from './reset-email.service';
 import * as fs from 'fs';
 import * as path from 'path';
 import { UpdateUserModel } from '../domain/dto/update-user-model.dto';
+import { UserEntity } from '../domain/entities/user.entity';
 
 @Injectable()
 export class UsersService {
@@ -38,6 +39,8 @@ export class UsersService {
       throw new BadRequestException('Usuário já cadastrado');
     }
 
+    const userParsed = UserEntity.parseUserToCreateDto(user);
+
     const saltRounds = 10;
     if (user.role === Role.SECRETARIA) {
       user.password = await this.generateRandomPassword(10);
@@ -48,7 +51,7 @@ export class UsersService {
     const passwordCrypt = await hash(user.password, saltRounds);
 
     const userCreated = await this.usersRepository.createUser({
-      ...user,
+      ...userParsed,
       photo: photo?.path,
       tempPassword: user.role === Role.SECRETARIA,
       password: passwordCrypt,
