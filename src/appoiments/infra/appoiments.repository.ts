@@ -23,7 +23,7 @@ export default class AppoimentsRepository {
 
   async findAll(
     filters: ListAllAppoimentsQueryDto,
-  ): Promise<PaginationResponse<Appoiments>> {
+  ): Promise<PaginationResponse<any>> {
     const { page, pageSize, skip, take } = mountPagination({
       page: filters.page,
       pageSize: filters.pageSize,
@@ -60,32 +60,31 @@ export default class AppoimentsRepository {
 
     if (filters.search) {
       conditionOr.push({
-        ...[
-          {
-            patient_name: {
-              contains: filters.search,
-              mode: Prisma.QueryMode.insensitive,
-            },
-          },
-          {
-            patient_email: {
-              contains: filters.search,
-              mode: Prisma.QueryMode.insensitive,
-            },
-          },
-          {
-            patient_phone: {
-              contains: filters.search,
-              mode: Prisma.QueryMode.insensitive,
-            },
-          },
-          {
-            patient_cpf: {
-              contains: filters.search,
-              mode: Prisma.QueryMode.insensitive,
-            },
-          },
-        ],
+        patient_name: {
+          contains: filters.search,
+          mode: Prisma.QueryMode.insensitive,
+        },
+      });
+
+      conditionOr.push({
+        patient_email: {
+          contains: filters.search,
+          mode: Prisma.QueryMode.insensitive,
+        },
+      });
+
+      conditionOr.push({
+        patient_phone: {
+          contains: filters.search,
+          mode: Prisma.QueryMode.insensitive,
+        },
+      });
+
+      conditionOr.push({
+        patient_cpf: {
+          contains: filters.search,
+          mode: Prisma.QueryMode.insensitive,
+        },
       });
     }
 
@@ -106,6 +105,9 @@ export default class AppoimentsRepository {
         OR: conditionOr.length > 0 ? conditionOr : undefined,
       },
       orderBy: { createdAt: 'desc' },
+      include: {
+        examsType: true,
+      },
     });
 
     return {
