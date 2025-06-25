@@ -157,6 +157,38 @@ export default class AppoimentsRepository {
     });
   }
 
+  async cancelAppoiment(
+    id: string,
+    canceledTime: Date,
+    details: string,
+  ): Promise<Appoiments> {
+    return this.prisma.appoiments.update({
+      where: {
+        id,
+      },
+      data: {
+        status: AppoimentsStatus.CANCELED,
+        date_end: canceledTime,
+        statusDetails: details,
+        canceledDate: canceledTime,
+      },
+    });
+  }
+
+  async noShowAppoiment(id: string, noShowTime): Promise<Appoiments> {
+    return this.prisma.appoiments.update({
+      where: {
+        id,
+      },
+      data: {
+        status: AppoimentsStatus.NO_SHOW,
+        statusDetails: 'Paciente não compareceu',
+        date_end: noShowTime,
+        givenUpDate: noShowTime,
+      },
+    });
+  }
+
   async finishAppoiment(id: string, finishedTime: Date): Promise<Appoiments> {
     return this.prisma.appoiments.update({
       where: {
@@ -165,6 +197,7 @@ export default class AppoimentsRepository {
       data: {
         status: AppoimentsStatus.FINISIHED,
         date_end: finishedTime,
+        finishedDate: finishedTime,
       },
     });
   }
@@ -214,6 +247,7 @@ export default class AppoimentsRepository {
       },
       data: {
         status: AppoimentsStatus.CONFIRMED,
+        confirmationDate: new Date(),
       },
     });
 

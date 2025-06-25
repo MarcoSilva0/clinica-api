@@ -10,7 +10,7 @@ async function bootstrap() {
   app.enableCors({ origin: 'http://localhost:3000', credentials: true });
 
   const config = new DocumentBuilder()
-    .setTitle('Clinic Check API')
+    .setTitle('ClinicUp API')
     .setDescription('')
     .setVersion('1.0')
     .build();

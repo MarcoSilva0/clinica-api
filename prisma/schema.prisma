@@ -71,6 +71,10 @@ model Appoiments {
   status             AppoimentsStatus @default(SCHEDULED)
   details            String
   statusDetails      String?
+  confirmationDate   DateTime?
+  finishedDate      DateTime?
+  canceledDate      DateTime?
+  givenUpDate       DateTime?
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt

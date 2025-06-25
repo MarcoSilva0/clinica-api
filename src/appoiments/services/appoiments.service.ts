@@ -118,10 +118,11 @@ export class AppoimentsService {
       if (!data.details) {
         throw new BadRequestException('Motivo do cancelamento é obrigatório');
       }
-      await this.appoimentsRepository.changeStatus(id, {
-        status: AppoimentsStatus.CANCELED,
-        details: data.details,
-      });
+      await this.appoimentsRepository.cancelAppoiment(
+        id,
+        new Date(),
+        data.details,
+      );
 
       await this.mailerService.sendEmail(
         appoiment.patient_email,
@@ -142,6 +143,7 @@ export class AppoimentsService {
       const maxWaitTimeMinToThisAppoiment = add(new Date(), {
         minutes: maxWaitTimeMin.maxWaitTimeMin * 2 || 0,
       });
+
       if (
         isBefore(new Date(appoiment.date_start), maxWaitTimeMinToThisAppoiment)
       ) {
@@ -150,10 +152,7 @@ export class AppoimentsService {
         );
       }
 
-      await this.appoimentsRepository.changeStatus(id, {
-        status: AppoimentsStatus.NO_SHOW,
-        details: data.details,
-      });
+      await this.appoimentsRepository.noShowAppoiment(id, new Date());
 
       await this.mailerService.sendEmail(
         appoiment.patient_email,
