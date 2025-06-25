@@ -28,53 +28,72 @@ export default class AppoimentsRepository {
       pageSize: filters.pageSize,
     });
 
+    const conditionAnd: any[] = [];
+    const conditionOr: any[] = [];
+
+    if (filters.startDate && filters.endDate) {
+      conditionAnd.push({
+        date_start: {
+          gte: new Date(filters.startDate),
+        },
+      });
+
+      conditionAnd.push({
+        date_end: {
+          lte: new Date(filters.endDate),
+        },
+      });
+    }
+
+    if (filters.status) {
+      conditionAnd.push({
+        status: filters.status,
+      });
+    }
+
+    if (filters.examsTypeId) {
+      conditionAnd.push({
+        examsTypeId: filters.examsTypeId,
+      });
+    }
+
+    if (filters.search) {
+      conditionOr.push({
+        ...[
+          {
+            patient_name: {
+              contains: filters.search,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          },
+          {
+            patient_email: {
+              contains: filters.search,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          },
+          {
+            patient_phone: {
+              contains: filters.search,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          },
+          {
+            patient_cpf: {
+              contains: filters.search,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          },
+        ],
+      });
+    }
+
+    console.log('conditionAnd', conditionAnd);
+    console.log('conditionOr', conditionOr);
+
     const whereInput: Prisma.AppoimentsWhereInput = {
-      AND: [
-        {
-          date_start: {
-            gte: filters.startDate,
-            lte: filters.endDate,
-          },
-        },
-        {
-          date_end: {
-            gte: filters.startDate,
-            lte: filters.endDate,
-          },
-        },
-        {
-          status: filters.status,
-        },
-        {
-          examsTypeId: filters.examsTypeId,
-        },
-      ],
-      OR: [
-        {
-          patient_name: {
-            contains: filters.search,
-            mode: Prisma.QueryMode.insensitive,
-          },
-        },
-        {
-          patient_email: {
-            contains: filters.search,
-            mode: Prisma.QueryMode.insensitive,
-          },
-        },
-        {
-          patient_phone: {
-            contains: filters.search,
-            mode: Prisma.QueryMode.insensitive,
-          },
-        },
-        {
-          patient_cpf: {
-            contains: filters.search,
-            mode: Prisma.QueryMode.insensitive,
-          },
-        },
-      ],
+      AND: conditionAnd.length > 0 ? conditionAnd : undefined,
+      OR: conditionOr.length > 0 ? conditionOr : undefined,
     };
 
     const totalAppoiments = await this.prisma.appoiments.count({
@@ -84,9 +103,14 @@ export default class AppoimentsRepository {
     const appoiments = await this.prisma.appoiments.findMany({
       skip,
       take,
-      where: whereInput,
+      where: {
+        AND: conditionAnd.length > 0 ? conditionAnd : undefined,
+        OR: conditionOr.length > 0 ? conditionOr : undefined,
+      },
       orderBy: { createdAt: 'desc' },
     });
+
+    console.log('appoiments', appoiments);
 
     return {
       data: appoiments,
