@@ -1,15 +1,22 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import AppoimentsRepository from '../infra/appoiments.repository';
 import { CreateAppoimentDto } from '../domain/dto/create-appoiment.dto';
 import { ListAllAppoimentsQueryDto } from '../domain/dto/list-all-appoiments.dto';
 import { MailerService } from 'src/mailer/services/mailer.service';
 import { ExamsTypeService } from 'src/exam-types/service/exams-type.service';
+import * as moment from 'moment';
 
 @Injectable()
 export class AppoimentsService {
   constructor(
     private appoimentsRepository: AppoimentsRepository,
     private readonly mailerService: MailerService,
+    @Inject(forwardRef(() => ExamsTypeService))
     private readonly examTypesService: ExamsTypeService,
   ) {}
 
@@ -25,12 +32,17 @@ export class AppoimentsService {
       appoimentCreated.examsTypeId,
     );
 
+    const appoimentDate = moment(appoimentCreated.date_start).format(
+      'DD/MM/YYYY',
+    );
+    const appoimentHour = moment(appoiment.date_start).format('HH:mm');
+
     const message = `
         <h1>Agendamento Confirmado</h1>
         <p>Olá ${appoiment.patient_name},</p>
         <p>Seu agendamento foi confirmado com sucesso!</p>
-        <p>Data: ${appoiment.date_start}</p>
-        <p>Horário: ${appoiment.date_start}</p>
+        <p>Data: ${appoimentDate}</p>
+        <p>Horário: ${appoimentHour}</p>
         <p>Exame: ${examType?.name}</p>
         <br />
         <p><b>Instruções:</b></p>

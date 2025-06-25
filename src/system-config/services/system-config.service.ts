@@ -43,8 +43,13 @@ export class SystemConfigService {
 
     await this.mailerService.sendEmail(
       userAdmin.email,
-      'Welcome to the System',
-      `<html>Your admin account has been created with email: ${userAdmin.email}</html>`,
+      'Bem-vindo(a) ao sistema',
+      `<html>
+      <h1>Bem-vindo(a) ao sistema</h1>
+      <p>Olá ${userAdmin.name},</p>
+      <p>Seu cadastro foi realizado com sucesso!</p>
+      <p>Você pode acessar o sistema com o e-mail: ${userAdmin.email}</p>
+      </html>`,
     );
 
     return { message: 'System initialized successfully' };

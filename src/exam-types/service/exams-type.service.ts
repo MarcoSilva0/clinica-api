@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateExamTypeDto } from '../domain/dto/create-exam-type.dto';
 import { ExamTypes } from '@prisma/client';
 import { ExamsTypeRepository } from '../infra/exams-type.repository';
@@ -9,6 +9,7 @@ import { AppoimentsService } from 'src/appoiments/services/appoiments.service';
 export class ExamsTypeService {
   constructor(
     private examsTypeRepository: ExamsTypeRepository,
+    @Inject(forwardRef(() => AppoimentsService))
     private readonly appoimentService: AppoimentsService,
   ) {}
 

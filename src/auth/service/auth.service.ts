@@ -85,6 +85,7 @@ export class AuthService {
       user.email,
       'Solicitação de redefinição de Senha',
       `<html>
+        <h1>Solicitação de redefinição de Senha</h1>
         <p>Para redefinir sua senha, por favor use o seguinte código:</p>
         <p><strong>${code}</strong></p>
         <p>Esse código irá expirar em 15 minutos</p>

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { AppoimentsController } from './http/appoiments.controller';
 import { AppoimentsService } from './services/appoiments.service';
 import { PrismaModule } from 'src/prisma/prisma.module';
@@ -9,7 +9,7 @@ import { MailerModule } from 'src/mailer/mailer.module';
 import { ExamTypesModule } from 'src/exam-types/exam-types.module';
 
 @Module({
-  imports: [PrismaModule, MailerModule, ExamTypesModule],
+  imports: [PrismaModule, MailerModule, forwardRef(() => ExamTypesModule)],
   controllers: [AppoimentsController],
   providers: [
     {

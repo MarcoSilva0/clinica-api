@@ -23,7 +23,10 @@ export class ResetEmailService {
       user.email,
       'Solicitação de redefinição de E-mail',
       `<html>
-          <p>Para redefinir seu e-mail, por favor use o seguinte código:</p>
+          <h1>Solicitação de redefinição de E-mail</h1>
+          <p>Olá ${user.name},</p>
+          <p>Recebemos uma solicitação para redefinir seu e-mail.</p>
+          <p>Esse é o seu código de verificação:</p>
           <p><strong>${code}</strong></p>
           <p>Esse código irá expirar em 15 minutos</p>
         </html>`,
