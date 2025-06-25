@@ -70,9 +70,11 @@ model Appoiments {
   date_end           DateTime
   status             AppoimentsStatus @default(SCHEDULED)
   details            String
+  statusDetails      String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  WaitingList WaitingList[]
 }
 
 model SystemConfig {
@@ -103,4 +105,14 @@ model EmailResetToken {
   expiresAt DateTime
   used      Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+model WaitingList {
+  id          String     @id @default(uuid())
+  order       Int
+  appoiment   Appoiments @relation(fields: [appoimentId], references: [id], onDelete: Cascade)
+  appoimentId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

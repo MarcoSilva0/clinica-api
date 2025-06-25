@@ -10,12 +10,17 @@ import { ListAllAppoimentsQueryDto } from '../domain/dto/list-all-appoiments.dto
 import { MailerService } from 'src/mailer/services/mailer.service';
 import { ExamsTypeService } from 'src/exam-types/service/exams-type.service';
 import * as moment from 'moment';
+import { AppoimentsStatus } from '@prisma/client';
+import { UpdateAppoimentStatusDto } from '../domain/dto/update-appoiment-status.dto';
+import { SystemConfigService } from 'src/system-config/services/system-config.service';
+import { add, isBefore } from 'date-fns';
 
 @Injectable()
 export class AppoimentsService {
   constructor(
     private appoimentsRepository: AppoimentsRepository,
     private readonly mailerService: MailerService,
+    private readonly configService: SystemConfigService,
     @Inject(forwardRef(() => ExamsTypeService))
     private readonly examTypesService: ExamsTypeService,
   ) {}
@@ -71,8 +76,96 @@ export class AppoimentsService {
     return this.appoimentsRepository.update(id, appoiment);
   }
 
-  async changeStatus(id: string, status: { status: any }): Promise<any | null> {
-    return this.appoimentsRepository.changeStatus(id, status);
+  async changeStatus(
+    id: string,
+    data: UpdateAppoimentStatusDto,
+  ): Promise<any | null> {
+    const appoiment = await this.appoimentsRepository.findOne(id);
+    if (!appoiment) {
+      throw new BadRequestException('Agendamento não encontrado');
+    }
+    if (appoiment?.status === AppoimentsStatus.NO_SHOW) {
+      throw new BadRequestException(
+        'Não é possível alterar o status de um agendamento que já foi marcado como "Ausente"',
+      );
+    }
+
+    if (data.status === AppoimentsStatus.FINISIHED) {
+      if (!data.finishedTime) {
+        throw new BadRequestException('Hora de término é obrigatória');
+      }
+      if (
+        isBefore(new Date(data.finishedTime), new Date(appoiment.date_start))
+      ) {
+        throw new BadRequestException(
+          'Hora de término não pode ser anterior ao horário de início do agendamento',
+        );
+      }
+
+      await this.appoimentsRepository.finishAppoiment(id, data.finishedTime);
+
+      await this.mailerService.sendEmail(
+        appoiment.patient_email,
+        'Agendamento Finalizado',
+        `<h1>Agendamento Finalizado</h1>
+        <p>Olá ${appoiment.patient_name},</p>
+        <p>Seu agendamento foi finalizado com sucesso.</p>
+        `,
+      );
+    }
+
+    if (data.status === AppoimentsStatus.CANCELED) {
+      if (!data.details) {
+        throw new BadRequestException('Motivo do cancelamento é obrigatório');
+      }
+      await this.appoimentsRepository.changeStatus(id, {
+        status: AppoimentsStatus.CANCELED,
+        details: data.details,
+      });
+
+      await this.mailerService.sendEmail(
+        appoiment.patient_email,
+        'Cancelamento de Agendamento',
+        `<h1>Agendamento Cancelado</h1>
+        <p>Olá ${appoiment.patient_name},</p>
+        <p>Seu agendamento foi cancelado.</p> 
+        `,
+      );
+    }
+
+    if (data.status === AppoimentsStatus.NO_SHOW) {
+      const maxWaitTimeMin = await this.configService.getMaxWaitTimeMin();
+      if (maxWaitTimeMin.maxWaitTimeMin === null) {
+        throw new BadRequestException('Tempo máximo de espera não configurado');
+      }
+
+      const maxWaitTimeMinToThisAppoiment = add(new Date(), {
+        minutes: maxWaitTimeMin.maxWaitTimeMin * 2 || 0,
+      });
+      if (
+        isBefore(new Date(appoiment.date_start), maxWaitTimeMinToThisAppoiment)
+      ) {
+        throw new BadRequestException(
+          'Não é possível atualizar para "Ausente" antes do tempo máximo de espera',
+        );
+      }
+
+      await this.appoimentsRepository.changeStatus(id, {
+        status: AppoimentsStatus.NO_SHOW,
+        details: data.details,
+      });
+
+      await this.mailerService.sendEmail(
+        appoiment.patient_email,
+        'Ausência no Agendamento',
+        `<h1>Ausência Confirmada</h1>
+        <p>Olá ${appoiment.patient_name},</p>
+        <p>Seu agendamento foi cancelado devido a ausência.</p>
+        `,
+      );
+    }
+
+    return this.appoimentsRepository.changeStatus(id, data);
   }
 
   async findAllAppoimentsByExamTypeId(examTypeId: string): Promise<number> {

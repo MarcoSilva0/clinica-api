@@ -24,5 +24,6 @@ import { RolesGuard } from 'src/auth/infra/guard/role/role.guard';
       useClass: RolesGuard,
     },
   ],
+  exports: [SystemConfigService],
 })
 export class SystemConfigModule {}

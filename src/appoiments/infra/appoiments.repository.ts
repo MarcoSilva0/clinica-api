@@ -7,6 +7,7 @@ import {
   PaginationResponse,
 } from 'src/core/utils/paginationResponse';
 import { ListAllAppoimentsQueryDto } from '../domain/dto/list-all-appoiments.dto';
+import { UpdateAppoimentStatusDto } from '../domain/dto/update-appoiment-status.dto';
 
 @Injectable()
 export default class AppoimentsRepository {
@@ -144,13 +145,26 @@ export default class AppoimentsRepository {
     });
   }
 
-  async changeStatus(id: string, status: { status: AppoimentsStatus }) {
+  async changeStatus(id: string, data: UpdateAppoimentStatusDto) {
     return this.prisma.appoiments.update({
       where: {
         id,
       },
       data: {
-        status: status.status,
+        status: data.status,
+        statusDetails: data.details,
+      },
+    });
+  }
+
+  async finishAppoiment(id: string, finishedTime: Date): Promise<Appoiments> {
+    return this.prisma.appoiments.update({
+      where: {
+        id,
+      },
+      data: {
+        status: AppoimentsStatus.FINISIHED,
+        date_end: finishedTime,
       },
     });
   }

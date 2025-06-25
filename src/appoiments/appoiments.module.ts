@@ -7,9 +7,15 @@ import { APP_GUARD } from '@nestjs/core';
 import AppoimentsRepository from './infra/appoiments.repository';
 import { MailerModule } from 'src/mailer/mailer.module';
 import { ExamTypesModule } from 'src/exam-types/exam-types.module';
+import { SystemConfigModule } from 'src/system-config/system-config.module';
 
 @Module({
-  imports: [PrismaModule, MailerModule, forwardRef(() => ExamTypesModule)],
+  imports: [
+    PrismaModule,
+    MailerModule,
+    SystemConfigModule,
+    forwardRef(() => ExamTypesModule),
+  ],
   controllers: [AppoimentsController],
   providers: [
     {

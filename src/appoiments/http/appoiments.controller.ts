@@ -80,8 +80,8 @@ export class AppoimentsController {
   @Patch(':id/status')
   async changeStatus(
     @Param('id') id: string,
-    @Body() status: UpdateAppoimentStatusDto,
+    @Body() data: UpdateAppoimentStatusDto,
   ): Promise<any | null> {
-    return this.appoimentsService.changeStatus(id, status);
+    return this.appoimentsService.changeStatus(id, data);
   }
 }
