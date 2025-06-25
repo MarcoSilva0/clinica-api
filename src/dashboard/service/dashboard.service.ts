@@ -8,12 +8,11 @@ export class DashboardService {
 
   async getDashboardChartData(role: Role): Promise<any> {
     console.log('Dashboard accessed by user:', role);
-    const admin = await this.dashboardRepository.getAdminDashboardCounts();
-    const secretary =
-      await this.dashboardRepository.getSecretaryDashboardCounts();
-    return {
-      admin,
-      secretary,
-    };
+    if (role === Role.ADMIN) {
+      return this.dashboardRepository.getAdminDashboardCounts();
+    }
+    if (role === Role.SECRETARIA) {
+      return this.dashboardRepository.getSecretaryDashboardCounts();
+    }
   }
 }
