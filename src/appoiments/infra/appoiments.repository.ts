@@ -88,9 +88,6 @@ export default class AppoimentsRepository {
       });
     }
 
-    console.log('conditionAnd', conditionAnd);
-    console.log('conditionOr', conditionOr);
-
     const whereInput: Prisma.AppoimentsWhereInput = {
       AND: conditionAnd.length > 0 ? conditionAnd : undefined,
       OR: conditionOr.length > 0 ? conditionOr : undefined,
@@ -109,8 +106,6 @@ export default class AppoimentsRepository {
       },
       orderBy: { createdAt: 'desc' },
     });
-
-    console.log('appoiments', appoiments);
 
     return {
       data: appoiments,
