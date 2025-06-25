@@ -5,10 +5,11 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { AuthGuard } from 'src/auth/infra/guard/auth/auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 import AppoimentsRepository from './infra/appoiments.repository';
+import { MailerModule } from 'src/mailer/mailer.module';
 import { ExamTypesModule } from 'src/exam-types/exam-types.module';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, MailerModule, ExamTypesModule],
   controllers: [AppoimentsController],
   providers: [
     {
