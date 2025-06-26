@@ -7,7 +7,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
 
-  app.enableCors({ origin: 'http://localhost:3000', credentials: true });
+  app.enableCors({ 
+    origin: ['http://localhost:3000', 'http://localhost:3001'], 
+    credentials: true 
+  });
 
   const config = new DocumentBuilder()
     .setTitle('ClinicUp API')

@@ -10,6 +10,7 @@ import { MailerModule } from './mailer/mailer.module';
 import { SystemConfigModule } from './system-config/system-config.module';
 import { CheckInitializedMiddleware } from './core/middlewares/check-initialized.middleware';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { HealthController } from './health.controller';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     SystemConfigModule,
     DashboardModule,
   ],
-  controllers: [],
+  controllers: [HealthController],
   providers: [],
 })
 export class AppModule implements NestModule {

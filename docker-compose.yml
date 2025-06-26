@@ -1,42 +1,71 @@
 services:
-  app:
+  # Serviço para executar migrações
+  prisma_migrate:
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: clinica-ifsp-app
-    restart: unless-stopped
+      dockerfile: dockerfile
+    container_name: clinica-migrate
     env_file: .env
+    environment:
+      - DATABASE_URL=postgresql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@database_clinicup:5432/${DATABASE_NAME}?schema=public
+    depends_on:
+      database_clinicup:
+        condition: service_healthy
+    networks:
+      - clinica-network
+    command: ["sh", "-c", "yarn prisma migrate deploy && yarn prisma generate"]
+    restart: "no"
+
+  api_clinicup:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: clinica-api
     ports:
       - '3001:3001'
-    volumes:
-      - .:/app
-      - /app/node_modules
-    command: >
-      sh -c "
-        if [ ! -f package.json ]; then
-          nest new . --package-manager yarn --skip-git --skip-install &&
-          yarn install
-        else
-          yarn install
-        fi && npx prisma generate &&
-        npx prisma migrate deploy &&
-        yarn start:dev
-      "
+    env_file: .env
+    environment:
+      - DATABASE_URL=postgresql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@database_clinicup:5432/${DATABASE_NAME}?schema=public
     depends_on:
-      - db
-      
-  db:
-    image: postgres
-    container_name: clinica-ifsp-database
+      database_clinicup:
+        condition: service_healthy
+      prisma_migrate:
+        condition: service_completed_successfully
+    networks:
+      - clinica-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3001/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  database_clinicup:
+    image: postgres:16-alpine
+    container_name: clinica-postgres-db
     environment:
       POSTGRES_USER: ${DATABASE_USERNAME}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: ${DATABASE_NAME}
+      PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - "5432:5432"
     volumes:
-      - postgres:/data/postgres
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - clinica-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USERNAME} -d ${DATABASE_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  clinica-network:
+    driver: bridge
 
 volumes:
-  postgres:
+  postgres_data:
     driver: local
