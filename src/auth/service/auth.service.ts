@@ -104,7 +104,6 @@ export class AuthService {
       code,
       email,
     );
-    console.log(resetToken);
     if (!resetToken || resetToken.used)
       throw new BadRequestException('Token inválido');
     if (resetToken.expiresAt < new Date())
@@ -145,9 +144,6 @@ export class AuthService {
       user.password,
     );
 
-    console.log(
-      `Comparando senha temporária: ${temporaryPassword} com a senha do usuário: ${user.password}, resultado: ${isTemporaryPasswordValid}`,
-    );
     if (!isTemporaryPasswordValid) {
       throw new UnauthorizedException('Senha temporária inválida');
     }

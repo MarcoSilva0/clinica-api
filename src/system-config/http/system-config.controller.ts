@@ -27,7 +27,6 @@ export class SystemConfigController {
   @Get('/status')
   @Public()
   async getStatus() {
-    console.log('getStatus endpoint accessed');
     return this.configService.getStatus();
   }
 

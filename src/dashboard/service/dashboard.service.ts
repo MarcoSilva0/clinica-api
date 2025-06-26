@@ -7,7 +7,6 @@ export class DashboardService {
   constructor(private readonly dashboardRepository: DashboardRepository) {}
 
   async getDashboardChartData(role: Role): Promise<any> {
-    console.log('Dashboard accessed by user:', role);
     if (role === Role.ADMIN) {
       return this.dashboardRepository.getAdminDashboardCounts();
     }

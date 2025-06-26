@@ -8,8 +8,7 @@ import {
 } from 'src/core/utils/paginationResponse';
 import { ListAllAppoimentsQueryDto } from '../domain/dto/list-all-appoiments.dto';
 import { UpdateAppoimentStatusDto } from '../domain/dto/update-appoiment-status.dto';
-import { fromZonedTime } from 'date-fns-tz';
-import moment from 'moment';
+import * as moment from 'moment';
 
 @Injectable()
 export default class AppoimentsRepository {
@@ -227,32 +226,16 @@ export default class AppoimentsRepository {
   async confirmPatientTodayAppoiments(
     patientCpf: string,
   ): Promise<Appoiments[]> {
-    const now = new Date();
-    const startOfDay = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-      0,
-      0,
-      0,
-      0,
-    );
-    const endOfDay = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-      23,
-      59,
-      59,
-      999,
-    );
+    const today = moment().format('YYYY-MM-DD');
+    const startDate = new Date(`${today}T00:00:00.000`);
+    const endDate = new Date(`${today}T23:59:59.999`);
 
     await this.prisma.appoiments.updateMany({
       where: {
         patient_cpf: patientCpf.replace(/\D/g, ''),
         date_start: {
-          gte: startOfDay,
-          lte: endOfDay,
+          gte: startDate,
+          lte: endDate,
         },
       },
       data: {
@@ -265,8 +248,8 @@ export default class AppoimentsRepository {
       where: {
         patient_cpf: patientCpf.replace(/\D/g, ''),
         date_start: {
-          gte: startOfDay,
-          lte: endOfDay,
+          gte: startDate,
+          lte: endDate,
         },
         status: AppoimentsStatus.CONFIRMED,
       },
@@ -379,7 +362,9 @@ export default class AppoimentsRepository {
    * Calcula o tempo médio de atendimento por tipo de exame para o dia atual
    * Retorna em minutos
    */
-  async calculateAverageAttendanceTimeByExamType(examTypeId: string): Promise<number> {
+  async calculateAverageAttendanceTimeByExamType(
+    examTypeId: string,
+  ): Promise<number> {
     const now = new Date();
     const startOfDay = new Date(
       now.getFullYear(),
@@ -424,14 +409,17 @@ export default class AppoimentsRepository {
     }
 
     // Calcular duração de cada atendimento em minutos
-    const durations = finishedAppoiments.map(appoiment => {
+    const durations = finishedAppoiments.map((appoiment) => {
       const startTime = new Date(appoiment.date_start).getTime();
       const endTime = new Date(appoiment.finishedDate!).getTime();
       return Math.round((endTime - startTime) / (1000 * 60)); // Converter para minutos
     });
 
     // Calcular média
-    const totalDuration = durations.reduce((sum, duration) => sum + duration, 0);
+    const totalDuration = durations.reduce(
+      (sum, duration) => sum + duration,
+      0,
+    );
     return Math.round(totalDuration / durations.length);
   }
 
@@ -440,26 +428,31 @@ export default class AppoimentsRepository {
    */
   async getTodayExamTypesAverageTime(examTypeIds?: string[]) {
     const examTypes = await this.prisma.examTypes.findMany({
-      where: examTypeIds && examTypeIds.length > 0 ? {
-        id: {
-          in: examTypeIds,
-        },
-        active: true,
-      } : {
-        active: true,
-      },
+      where:
+        examTypeIds && examTypeIds.length > 0
+          ? {
+              id: {
+                in: examTypeIds,
+              },
+              active: true,
+            }
+          : {
+              active: true,
+            },
     });
 
     const averageTimes = await Promise.all(
       examTypes.map(async (examType) => {
-        const averageTime = await this.calculateAverageAttendanceTimeByExamType(examType.id);
+        const averageTime = await this.calculateAverageAttendanceTimeByExamType(
+          examType.id,
+        );
         return {
           examTypeId: examType.id,
           examTypeName: examType.name,
           defaultDuration: examType.defaultDuration,
           averageTimeMinutes: averageTime,
         };
-      })
+      }),
     );
 
     return averageTimes;
@@ -514,17 +507,22 @@ export default class AppoimentsRepository {
   /**
    * Busca dados completos para a página de acompanhamento em tempo real
    */
-  async getDashboardData(examTypeIds?: string[]) {
+  async getDashboardData(examTypeIds?: string) {
+    let examTypeIdsArr: string[] = [];
+    if (examTypeIds) {
+      examTypeIdsArr = examTypeIds.split(',').map((id) => id.trim());
+    }
+
     const [
       confirmedAppoiments,
       finishedAppoiments,
       inProgressAppoiments,
       averageTimes,
     ] = await Promise.all([
-      this.findTodayConfirmedAppoiments(examTypeIds),
-      this.findTodayFinishedAppoiments(examTypeIds),
-      this.findTodayInProgressAppoiments(examTypeIds),
-      this.getTodayExamTypesAverageTime(examTypeIds),
+      this.findTodayConfirmedAppoiments(examTypeIdsArr),
+      this.findTodayFinishedAppoiments(examTypeIdsArr),
+      this.findTodayInProgressAppoiments(examTypeIdsArr),
+      this.getTodayExamTypesAverageTime(examTypeIdsArr),
     ]);
 
     return {

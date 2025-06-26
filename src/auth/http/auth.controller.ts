@@ -71,7 +71,6 @@ export class AuthController {
     @Body() data: ResetTemporaryPasswordDto,
     @User() user: UserEntity,
   ) {
-    console.log('Resetting temporary password for:', user.email);
     return await this.authService.resetTemporaryPassword({...data, email: user.email});
   }
 }
