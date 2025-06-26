@@ -274,4 +274,265 @@ export default class AppoimentsRepository {
 
     return appoiments;
   }
+
+  /**
+   * Busca agendamentos confirmados do dia atual ordenados por horário de início
+   * Para exibição na página de acompanhamento em tempo real
+   */
+  async findTodayConfirmedAppoiments(examTypeIds?: string[]) {
+    const now = new Date();
+    const startOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      0,
+      0,
+      0,
+      0,
+    );
+    const endOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23,
+      59,
+      59,
+      999,
+    );
+
+    const whereCondition: Prisma.AppoimentsWhereInput = {
+      status: AppoimentsStatus.CONFIRMED,
+      date_start: {
+        gte: startOfDay,
+        lte: endOfDay,
+      },
+    };
+
+    if (examTypeIds && examTypeIds.length > 0) {
+      whereCondition.examsTypeId = {
+        in: examTypeIds,
+      };
+    }
+
+    return this.prisma.appoiments.findMany({
+      where: whereCondition,
+      orderBy: {
+        date_start: 'asc',
+      },
+      include: {
+        examsType: true,
+      },
+    });
+  }
+
+  /**
+   * Busca agendamentos finalizados do dia atual
+   * Para exibir histórico de atendimentos realizados
+   */
+  async findTodayFinishedAppoiments(examTypeIds?: string[]) {
+    const now = new Date();
+    const startOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      0,
+      0,
+      0,
+      0,
+    );
+    const endOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23,
+      59,
+      59,
+      999,
+    );
+
+    const whereCondition: Prisma.AppoimentsWhereInput = {
+      status: AppoimentsStatus.FINISIHED,
+      date_start: {
+        gte: startOfDay,
+        lte: endOfDay,
+      },
+    };
+
+    if (examTypeIds && examTypeIds.length > 0) {
+      whereCondition.examsTypeId = {
+        in: examTypeIds,
+      };
+    }
+
+    return this.prisma.appoiments.findMany({
+      where: whereCondition,
+      orderBy: {
+        finishedDate: 'desc',
+      },
+      include: {
+        examsType: true,
+      },
+    });
+  }
+
+  /**
+   * Calcula o tempo médio de atendimento por tipo de exame para o dia atual
+   * Retorna em minutos
+   */
+  async calculateAverageAttendanceTimeByExamType(examTypeId: string): Promise<number> {
+    const now = new Date();
+    const startOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      0,
+      0,
+      0,
+      0,
+    );
+    const endOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23,
+      59,
+      59,
+      999,
+    );
+
+    // Buscar agendamentos finalizados do dia para o tipo de exame específico
+    const finishedAppoiments = await this.prisma.appoiments.findMany({
+      where: {
+        examsTypeId: examTypeId,
+        status: AppoimentsStatus.FINISIHED,
+        date_start: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+        finishedDate: {
+          not: null,
+        },
+      },
+      select: {
+        date_start: true,
+        finishedDate: true,
+      },
+    });
+
+    if (finishedAppoiments.length === 0) {
+      return 0;
+    }
+
+    // Calcular duração de cada atendimento em minutos
+    const durations = finishedAppoiments.map(appoiment => {
+      const startTime = new Date(appoiment.date_start).getTime();
+      const endTime = new Date(appoiment.finishedDate!).getTime();
+      return Math.round((endTime - startTime) / (1000 * 60)); // Converter para minutos
+    });
+
+    // Calcular média
+    const totalDuration = durations.reduce((sum, duration) => sum + duration, 0);
+    return Math.round(totalDuration / durations.length);
+  }
+
+  /**
+   * Busca estatísticas de tempo médio para todos os tipos de exame do dia atual
+   */
+  async getTodayExamTypesAverageTime(examTypeIds?: string[]) {
+    const examTypes = await this.prisma.examTypes.findMany({
+      where: examTypeIds && examTypeIds.length > 0 ? {
+        id: {
+          in: examTypeIds,
+        },
+        active: true,
+      } : {
+        active: true,
+      },
+    });
+
+    const averageTimes = await Promise.all(
+      examTypes.map(async (examType) => {
+        const averageTime = await this.calculateAverageAttendanceTimeByExamType(examType.id);
+        return {
+          examTypeId: examType.id,
+          examTypeName: examType.name,
+          defaultDuration: examType.defaultDuration,
+          averageTimeMinutes: averageTime,
+        };
+      })
+    );
+
+    return averageTimes;
+  }
+
+  /**
+   * Busca agendamentos em andamento (IN_APPOINTMENT) do dia atual
+   */
+  async findTodayInProgressAppoiments(examTypeIds?: string[]) {
+    const now = new Date();
+    const startOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      0,
+      0,
+      0,
+      0,
+    );
+    const endOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23,
+      59,
+      59,
+      999,
+    );
+
+    const whereCondition: Prisma.AppoimentsWhereInput = {
+      status: AppoimentsStatus.IN_APPOINTMENT,
+      date_start: {
+        gte: startOfDay,
+        lte: endOfDay,
+      },
+    };
+
+    if (examTypeIds && examTypeIds.length > 0) {
+      whereCondition.examsTypeId = {
+        in: examTypeIds,
+      };
+    }
+
+    return this.prisma.appoiments.findMany({
+      where: whereCondition,
+      include: {
+        examsType: true,
+      },
+    });
+  }
+
+  /**
+   * Busca dados completos para a página de acompanhamento em tempo real
+   */
+  async getDashboardData(examTypeIds?: string[]) {
+    const [
+      confirmedAppoiments,
+      finishedAppoiments,
+      inProgressAppoiments,
+      averageTimes,
+    ] = await Promise.all([
+      this.findTodayConfirmedAppoiments(examTypeIds),
+      this.findTodayFinishedAppoiments(examTypeIds),
+      this.findTodayInProgressAppoiments(examTypeIds),
+      this.getTodayExamTypesAverageTime(examTypeIds),
+    ]);
+
+    return {
+      confirmed: confirmedAppoiments,
+      finished: finishedAppoiments,
+      inProgress: inProgressAppoiments,
+      averageTimes,
+      currentDateTime: new Date(),
+    };
+  }
 }
