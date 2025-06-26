@@ -8,6 +8,8 @@ import {
 } from 'src/core/utils/paginationResponse';
 import { ListAllAppoimentsQueryDto } from '../domain/dto/list-all-appoiments.dto';
 import { UpdateAppoimentStatusDto } from '../domain/dto/update-appoiment-status.dto';
+import { fromZonedTime } from 'date-fns-tz';
+import moment from 'moment';
 
 @Injectable()
 export default class AppoimentsRepository {
@@ -33,15 +35,25 @@ export default class AppoimentsRepository {
     const conditionOr: any[] = [];
 
     if (filters.startDate && filters.endDate) {
+      let startDateStr = filters.startDate;
+      let endDateStr = filters.endDate;
+
+      if (new Date(startDateStr) > new Date(endDateStr)) {
+        [startDateStr, endDateStr] = [endDateStr, startDateStr];
+      }
+
+      const startDate = new Date(`${startDateStr}T00:00:00.000`);
+      const endDate = new Date(`${endDateStr}T23:59:59.999`);
+
       conditionAnd.push({
         date_start: {
-          gte: new Date(filters.startDate),
+          gte: startDate,
         },
       });
 
       conditionAnd.push({
-        date_end: {
-          lte: new Date(filters.endDate),
+        date_start: {
+          lte: endDate,
         },
       });
     }
@@ -242,10 +254,6 @@ export default class AppoimentsRepository {
           gte: startOfDay,
           lte: endOfDay,
         },
-        date_end: {
-          gte: startOfDay,
-          lte: endOfDay,
-        },
       },
       data: {
         status: AppoimentsStatus.CONFIRMED,
@@ -257,10 +265,6 @@ export default class AppoimentsRepository {
       where: {
         patient_cpf: patientCpf.replace(/\D/g, ''),
         date_start: {
-          gte: startOfDay,
-          lte: endOfDay,
-        },
-        date_end: {
           gte: startOfDay,
           lte: endOfDay,
         },
