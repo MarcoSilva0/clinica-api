@@ -108,6 +108,22 @@ export default class AppoimentsRepository {
       where: whereInput,
     });
 
+    let orderByClause: any[] = [];
+    
+    if (filters.orderBy && filters.orderBy.length > 0) {
+      orderByClause = filters.orderBy.map(order => ({
+        [order.field]: order.direction
+      }));
+    } 
+    else if (filters.singleOrderBy || filters.orderDirection) {
+      const orderBy = filters.singleOrderBy || 'createdAt';
+      const orderDirection = filters.orderDirection || 'desc';
+      orderByClause = [{ [orderBy]: orderDirection }];
+    }
+    else {
+      orderByClause = [{ createdAt: 'desc' }];
+    }
+
     const appoiments = await this.prisma.appoiments.findMany({
       skip,
       take,
@@ -115,7 +131,7 @@ export default class AppoimentsRepository {
         AND: conditionAnd.length > 0 ? conditionAnd : undefined,
         OR: conditionOr.length > 0 ? conditionOr : undefined,
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: orderByClause,
       include: {
         examsType: true,
       },
