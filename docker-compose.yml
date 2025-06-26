@@ -12,8 +12,8 @@ services:
         condition: service_healthy
     networks:
       - clinica-network
-    command: ["sh", "-c", "yarn prisma migrate deploy && yarn prisma generate"]
-    restart: "no"
+    command: ['sh', '-c', 'yarn prisma migrate deploy && yarn prisma generate']
+    restart: 'no'
 
   api_clinicup:
     build:
@@ -34,16 +34,29 @@ services:
       - clinica-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3001/health || exit 1"]
+      test:
+        [
+          'CMD-SHELL',
+          'wget --no-verbose --tries=1 --spider http://localhost:3001/health || exit 1',
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-  
+
   frontend_clinicup:
-    image: clinicup_app
-    ports: 
+    build:
+      context: ../clinicup
+      dockerfile: Dockerfile
+    environment:
+      - BASE_URL=http://api_clinicup:3001
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=BvXdvdDcxg2H2gIK9d1rx8EjqQpWradvtcJ+3bEUd5A=
+      - AUTH_TRUST_HOST=true
+    ports:
       - '3000:3000'
+    networks:
+      - clinica-network
 
   database_clinicup:
     image: postgres:16-alpine
@@ -54,14 +67,15 @@ services:
       POSTGRES_DB: ${DATABASE_NAME}
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - clinica-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USERNAME} -d ${DATABASE_NAME}"]
+      test:
+        ['CMD-SHELL', 'pg_isready -U ${DATABASE_USERNAME} -d ${DATABASE_NAME}']
       interval: 10s
       timeout: 5s
       retries: 5
