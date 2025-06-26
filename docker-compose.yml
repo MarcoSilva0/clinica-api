@@ -1,5 +1,4 @@
 services:
-  # Serviço para executar migrações
   prisma_migrate:
     build:
       context: .
@@ -40,6 +39,11 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+  
+  frontend_clinicup:
+    image: clinicup_app
+    ports: 
+      - '3000:3000'
 
   database_clinicup:
     image: postgres:16-alpine
