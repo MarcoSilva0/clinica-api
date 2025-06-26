@@ -281,7 +281,6 @@ export class UsersService {
 
     const { password, ...userWithoutPassword } =
       await this.usersRepository.updateUserPhoto(userId, photo.path);
-    console.log(userWithoutPassword);
 
     return userWithoutPassword;
   }
