@@ -170,6 +170,8 @@ export default class AppoimentsRepository {
       },
       data: {
         ...appoiment,
+        patient_cpf: appoiment.patient_cpf.replace(/\D/g, ''),
+        patient_phone: appoiment.patient_phone.replace(/\D/g, ''),
       },
     });
   }
